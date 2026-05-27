@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presenter View - Module 1: Foundation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .top-bar { background-color: #1e293b; border-bottom: 1px solid #334155; padding: 10px 15px; display: flex; flex-direction: column; gap: 10px; align-items: center; z-index: 10; }
+        .module-banner { background-color: #1e1e3a; width: 100%; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand { display: flex; align-items: center; width: 100%; justify-content: center; margin-bottom: 10px; }
+        .split-control { display: none; }
+        .controls { display: flex; gap: 10px; width: 100%; justify-content: center; align-items: center; }
+        @media (min-width: 1024px) {
+            .top-bar { flex-direction: row; padding: 15px 30px; gap: 0; }
+            .brand { width: auto; justify-content: flex-start; margin-bottom: 0; }
+            .split-control { display: flex; }
+            .controls { width: auto; }
+        }
+        @media (max-width: 767px) {
+            body { height: auto; min-height: 100vh; overflow-y: auto; }
+            .module-banner { height: auto; min-height: 50px; padding: 4px 10px; }
+            .module-banner .text-2xl { font-size: 1rem; }
+            .module-banner .text-xl { font-size: 0.75rem; }
+            .top-bar { height: auto; min-height: 50px; padding: 5px 10px; gap: 5px; }
+            .top-bar .brand span { font-size: 0.875rem; }
+            .top-bar .controls button { padding: 6px 12px; font-size: 0.75rem; }
+            .top-bar .status { padding: 4px 8px; font-size: 0.75rem; }
+            .split-control { display: none; }
+            .main-container { flex-direction: column; height: auto; min-height: 80vh; }
+            .preview-pane { height: 50px; min-height: 50px; padding: 4px; border-bottom: 1px solid #334155; flex: none; }
+            .preview-pane h2 { font-size: 0.625rem; margin-bottom: 2px; }
+            .preview-box { min-height: 40px; display: flex; align-items: center; justify-content: center; }
+            .preview-content-wrapper { width: 60px !important; height: 30px !important; transform: none !important; font-size: 6px !important; line-height: 1 !important; overflow: hidden; }
+            .notes-pane { flex: 1; height: auto; min-height: calc(100vh - 150px); padding: 10px; overflow-y: auto; }
+            .notes-pane h2 { font-size: 0.875rem; margin-bottom: 8px; }
+        }
+        .controls button { background-color: #6366f1; color: #fff; border: none; padding: 10px 24px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .controls button:hover { background-color: #4f46e5; }
+        .controls button:disabled { background-color: #334155; color: #64748b; cursor: not-allowed; }
+        .status { font-family: monospace; font-size: 16px; background: #000; padding: 8px 16px; border-radius: 6px; border: 1px solid #334155; white-space: nowrap; }
+        .main-container { display: flex; flex-direction: column; flex: 1; overflow-y: auto; }
+        .preview-pane { flex: none; height: 45%; min-height: 35vh; padding: 15px; border-bottom: 1px solid #334155; display: flex; flex-direction: column; background-color: #0a0a0a; }
+        .preview-box { flex: 1; background: #1e293b; border-radius: 8px; border: 2px solid #334155; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 200px; }
+        .preview-content-wrapper { width: 100%; height: 100%; transform-origin: center center; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .notes-pane { flex: 1; min-height: 35vh; padding: 20px; background-color: #1e293b; overflow-y: auto; }
+        .notes-pane h2 { margin-top: 0; color: #a78bfa; font-size: 18px; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 16px; font-weight: 600; }
+        .slide-cue-box { background: linear-gradient(135deg, #1e1e3a, #1e293b); border-left: 4px solid #a78bfa; padding: 12px 16px; margin-bottom: 16px; border-radius: 4px; }
+        .timing-box { background-color: #1a1a2e; border-left: 4px solid #818cf8; padding: 10px 16px; margin-bottom: 16px; border-radius: 4px; display: flex; align-items: center; gap: 10px; }
+        .timing-box .time-range { color: #c084fc; font-weight: 600; font-size: 15px; }
+        .script-section { margin-bottom: 16px; }
+        .script-header { display: flex; align-items: center; margin-bottom: 8px; }
+        .script-header i { color: #a78bfa; margin-right: 8px; }
+        .script-header span { color: #a78bfa; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .script-text { color: #e2e8f0; background: #0f172a; padding: 14px 16px; border-radius: 6px; line-height: 1.7; }
+        .script-text ul { margin: 0; padding-left: 20px; }
+        .script-text li { margin-bottom: 8px; }
+        .guidance-box { background: linear-gradient(135deg, #1e1e3a, #1e293b); border-left: 4px solid #f59e0b; padding: 14px 18px; margin-bottom: 16px; border-radius: 4px; }
+        .guidance-header { color: #f59e0b; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .guidance-box ul { margin: 0; padding-left: 20px; }
+        .guidance-box li { color: #e2e8f0; margin-bottom: 4px; }
+        .key-message-box { background: #1a1a2e; border-left: 4px solid #a78bfa; padding: 12px 16px; margin-bottom: 16px; border-radius: 4px; }
+        .key-message-header { display: flex; align-items: center; margin-bottom: 8px; color: #a78bfa; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .key-message-header i { margin-right: 8px; }
+        .key-message { color: #e2e8f0; font-weight: 500; }
+        .activity-box { background: #1a1a2e; border-left: 4px solid #a78bfa; padding: 10px 14px; margin-bottom: 12px; border-radius: 4px; color: #a78bfa; }
+        .trainer-notes-section { margin-top: 16px; }
+        .notes-header { display: flex; align-items: center; margin-bottom: 8px; color: #f59e0b; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .notes-header i { margin-right: 8px; }
+        .trainer-note { background: #2a1a00; border-left: 4px solid #f59e0b; padding: 12px 16px; margin-bottom: 6px; border-radius: 4px; color: #e2e8f0; font-size: 13px; line-height: 1.8; }
+        .trainer-note .script-heading { color: #a78bfa; font-weight: 700; margin-top: 12px; margin-bottom: 6px; }
+        .trainer-note .script-heading:first-child { margin-top: 0; }
+        .trainer-note ul { margin: 8px 0; padding-left: 20px; list-style-type: disc; }
+        .trainer-note ol { margin: 8px 0; padding-left: 20px; list-style-type: decimal; }
+        .trainer-note li { margin-bottom: 4px; }
+        .trainer-note p { margin: 8px 0; }
+        .gradient-text { background: linear-gradient(135deg, #a78bfa, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .expanded-tip { background: #1e1e2e; border-left: 4px solid #a78bfa; padding: 10px 14px; margin: 10px 0; border-radius: 4px; color: #c4b5fd; font-size: 13px; }
+        .expanded-tip strong { color: #a78bfa; }
+        .pause-emphasis { background: #2e1c1c; border-left: 4px solid #ef4444; padding: 10px 14px; margin: 10px 0; border-radius: 4px; color: #fca5a5; font-size: 13px; font-weight: 600; }
+        .pause-emphasis strong { color: #ef4444; }
+        .projection-btn { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; padding: 10px 16px; border-radius: 6px; border: 1px solid #818cf8; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease-in-out; margin: 8px 0; }
+        .projection-btn:hover { background: linear-gradient(135deg, #818cf8, #6366f1); transform: translateY(-1px); }
+        .reference-desk { background: linear-gradient(135deg, #1e1e3a, #0f172a); border: 1px solid #a78bfa; border-radius: 8px; margin-top: 20px; overflow: hidden; }
+        .reference-desk-header { background: #0f172a; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+        .reference-desk-header:hover { background: #1e293b; }
+        .reference-desk-title { display: flex; align-items: center; gap: 8px; color: #a78bfa; font-weight: 700; font-size: 14px; }
+        .reference-desk-title i { font-size: 16px; }
+        .reference-desk-toggle { color: #94a3b8; transition: transform 0.3s ease; }
+        .reference-desk-toggle.open { transform: rotate(180deg); }
+        .reference-desk-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: #0f172a; }
+        .reference-desk-content.open { max-height: 600px; overflow-y: auto; }
+        .reference-list { padding: 16px; list-style: none; margin: 0; }
+        .reference-list li { padding: 10px 0; border-bottom: 1px solid #334155; }
+        .reference-list li:last-child { border-bottom: none; }
+        .reference-item { font-size: 13px; line-height: 1.6; color: #e2e8f0; }
+        .reference-item .ref-number { color: #a78bfa; font-weight: 700; margin-right: 8px; }
+        .reference-link { color: #60a5fa; text-decoration: underline; cursor: pointer; transition: color 0.2s; }
+        .reference-link:hover { color: #93c5fd; }
+    </style>
+</head>
+<body>
+    <div class="module-banner">
+        <div class="flex items-center gap-4">
+            <span class="text-2xl font-bold">Module 1</span>
+            <span class="text-purple-200">Foundation - Google Workspace with AI</span>
+        </div>
+        <div class="text-xl font-mono bg-purple-800 px-4 py-1 rounded-lg">Slide <span id="bannerSlide">1</span> of <span id="bannerTotal">14</span></div>
+    </div>
+    <div class="top-bar">
+        <div class="brand">
+            <i class="fa-solid fa-robot" style="color: #a78bfa; font-size: 20px; margin-right: 10px;"></i>
+            <span style="font-size: 18px; font-weight: bold;">Presenter View</span>
+        </div>
+        <div class="split-control" style="display: flex; align-items: center; gap: 10px; color: #94a3b8; font-size: 14px; background: #000; padding: 8px 16px; border-radius: 6px; border: 1px solid #334155;">
+            <label for="splitSlider"><i class="fa-solid fa-left-right text-purple-400"></i> Audience:</label>
+            <input type="range" id="splitSlider" min="10" max="90" value="50" step="5" style="cursor: pointer;">
+            <span id="splitValue">50%</span>
+        </div>
+        <div class="controls">
+            <button id="prevBtn"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+            <div class="status" id="slideCounter">Slide 1 / 14</div>
+            <button id="nextBtn">Next <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+    <div class="main-container" id="mainContainer">
+        <div class="preview-pane" id="previewPane">
+            <h2><span>Audience Preview</span></h2>
+            <div class="preview-box">
+                <div class="preview-content-wrapper text-slate-100" id="preview-content"></div>
+            </div>
+        </div>
+        <div class="notes-pane" id="notesPane">
+            <h2>Speaker Notes</h2>
+            <div id="slide-info"></div>
+            <div id="notes-content"></div>
+        </div>
+        <div class="reference-desk" id="referenceDesk">
+            <div class="reference-desk-header" onclick="toggleReferenceDesk()">
+                <div class="reference-desk-title">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Reference Desk</span>
+                </div>
+                <div class="reference-desk-toggle" id="referenceToggle">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="reference-desk-content open" id="referenceContent">
+                <ul class="reference-list">
+                    <li>
+                        <div class="ref-item"><span class="ref-number">[1]</span>Google Workspace Official <a href="javascript:void(0)" onclick="openReferenceInAudience('https://workspace.google.com')" class="reference-link">workspace.google.com</a></div>
+                    </li>
+                    <li>
+                        <div class="ref-item"><span class="ref-number">[2]</span>Gemini AI <a href="javascript:void(0)" onclick="openReferenceInAudience('https://gemini.google.com')" class="reference-link">gemini.google.com</a></div>
+                    </li>
+                    <li>
+                        <div class="ref-item"><span class="ref-number">[3]</span>Google Workspace Updates <a href="javascript:void(0)" onclick="openReferenceInAudience('https://workspace.google.com/learn/updates')" class="reference-link">Latest AI Features</a></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        const channel = new BroadcastChannel('sync_module_1_ai-productivity');
+
+        function openReferenceInAudience(url) {
+            channel.postMessage({ type: 'open-tab-url', url: url });
+        }
+
+        function toggleReferenceDesk() {
+            const content = document.getElementById('referenceContent');
+            const toggle = document.getElementById('referenceToggle');
+            content.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        const courseData = [
+            {
+                title: "Slide 1: Title - Module 1: Foundation",
+                content: `<div class="w-full flex flex-col items-center justify-center text-center"><div class="mb-6 px-4 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-semibold border border-purple-500/30">MODULE 1</div><h1 class="text-5xl md:text-7xl font-extrabold mb-6">Foundation</h1><p class="text-2xl md:text-3xl text-slate-400 mb-8">Google Workspace with AI</p><div class="flex items-center gap-4 text-slate-500 text-lg"><span><i class="fa-regular fa-clock mr-2"></i>30 min</span><span class="text-purple-400">|</span><span><i class="fa-solid fa-robot mr-2"></i>Learn, Consolidate, Compress</span></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 1]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:00 - 0:03</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">Welcome participants and set expectations for an interactive session.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Opening (0:00-0:03):</p><p>Welcome everyone to Module 1: Foundation - Google Workspace with AI.</p><p>Today we're starting our journey into AI-powered productivity with Google Workspace. In the next 30 minutes, you'll go from knowing little about Gemini to actively using it in your daily work.</p><p>This session uses the Learn-Consolidate-Compress framework:</p><ul><li>Learn: I'll show you how things work</li><li>Consolidate: You practice with hands-on exercises</li><li>Compress: You take away tools you can use immediately</li></ul><p>By the end, you'll have a personal hotkey reference card for Gemini in Workspace.</p></div></div>`
+            },
+            {
+                title: "Slide 2: Learning Objectives",
+                content: `<div class="w-full flex flex-col items-start justify-center max-w-5xl mx-auto"><h2 class="text-4xl font-bold mb-8 gradient-text">Learning Objectives</h2><div class="space-y-6 w-full"><div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">1</span></div><div><p class="text-xl font-semibold text-white">Name and describe the 5 core Google Workspace applications</p></div></div><div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">2</span></div><div><p class="text-xl font-semibold text-white">Locate the Gemini AI assistant in at least 3 Workspace apps</p></div></div><div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">3</span></div><div><p class="text-xl font-semibold text-white">Send your first AI-assisted prompt to accomplish a work task</p></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 2]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:03 - 0:05</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">By the end of this session, everyone will have used Gemini in 3 different apps.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Review Objectives (0:03-0:05):</p><p>Let's start with what you'll be able to do by the end of this 30-minute session:</p><ol><li>Name and describe the 5 core Google Workspace applications - this is foundational literacy</li><li>Locate Gemini in at least 3 apps - we'll practice this during workshop</li><li>Send your first AI-assisted prompt - you'll do this in Gmail, Docs, and Sheets</li></ol><p>The goal is not to master everything, but to get comfortable starting. Gemini is your AI workmate - we'll get you acquainted today.</p></div></div>`
+            },
+            {
+                title: "Slide 3: Session Overview",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Session Overview</h2><div class="w-full max-w-4xl"><div class="grid grid-cols-3 gap-4 mb-6"><div class="bg-blue-600/20 p-4 rounded-xl border-l-4 border-blue-400 text-center"><div class="text-3xl font-bold text-blue-400 mb-2">12</div><div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div><div class="text-lg font-semibold mt-2 text-blue-300">LEARN</div></div><div class="bg-emerald-600/20 p-4 rounded-xl border-l-4 border-emerald-400 text-center"><div class="text-3xl font-bold text-emerald-400 mb-2">18</div><div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div><div class="text-lg font-semibold mt-2 text-emerald-300">CONSOLIDATE</div></div><div class="bg-purple-600/20 p-4 rounded-xl border-l-4 border-purple-400 text-center"><div class="text-3xl font-bold text-purple-400 mb-2">2</div><div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div><div class="text-lg font-semibold mt-2 text-purple-300">COMPRESS</div></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 3]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:05 - 0:07</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">This 40:60 split - less lecture, more practice - is intentional. Adult learning is hands-on.</div></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>Explain the visual: 12 min Learn, 18 min Consolidate, 2 min Compress</li><li>Highlight the 60% workshop time - this is where real learning happens</li><li>Mention the compression artifact: each module ends with a take-away tool</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Session Structure (0:05-0:07):</p><p>Here's how our 30 minutes breaks down:</p><ul><li><strong>Learn (12 min):</strong> I'll introduce concepts and demonstrate Gemini in action</li><li><strong>Consolidate (18 min):</strong> You get hands-on time to practice - this is the bulk of the session</li><li><strong>Compress (2 min):</strong> You take away a reference tool to use immediately</li></ul><p>The compression at the end is critical - every module ends with a take-away artifact you can use tomorrow.</p></div></div>`
+            },
+            {
+                title: "Slide 4: The 5 Core Applications",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">The 5 Core Applications</h2><div class="w-full max-w-5xl"><div class="grid grid-cols-1 md:grid-cols-5 gap-4"><div class="bg-slate-800/70 p-5 rounded-xl border border-slate-700 text-center"><div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-500/20 flex items-center justify-center"><i class="fa-solid fa-envelope text-3xl text-red-400"></i></div><h3 class="font-bold text-lg mb-2">Gmail</h3><p class="text-sm text-slate-400 mb-3">Email communication</p><p class="text-xs text-purple-400">Summarize threads, draft replies</p></div><div class="bg-slate-800/70 p-5 rounded-xl border border-slate-700 text-center"><div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-500/20 flex items-center justify-center"><i class="fa-solid fa-calendar text-3xl text-blue-400"></i></div><h3 class="font-bold text-lg mb-2">Calendar</h3><p class="text-sm text-slate-400 mb-3">Scheduling</p><p class="text-xs text-purple-400">Find times, generate agendas</p></div><div class="bg-slate-800/70 p-5 rounded-xl border border-slate-700 text-center"><div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-yellow-500/20 flex items-center justify-center"><i class="fa-solid fa-hard-drive text-3xl text-yellow-400"></i></div><h3 class="font-bold text-lg mb-2">Drive</h3><p class="text-sm text-slate-400 mb-3">File storage</p><p class="text-xs text-purple-400">Natural language search</p></div><div class="bg-slate-800/70 p-5 rounded-xl border border-slate-700 text-center"><div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-green-500/20 flex items-center justify-center"><i class="fa-solid fa-file-word text-3xl text-green-400"></i></div><h3 class="font-bold text-lg mb-2">Docs/Sheets/Slides</h3><p class="text-sm text-slate-400 mb-3">Documents</p><p class="text-xs text-purple-400">Write, analyze, design</p></div><div class="bg-slate-800/70 p-5 rounded-xl border border-slate-700 text-center"><div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-teal-500/20 flex items-center justify-center"><i class="fa-solid fa-video text-3xl text-teal-400"></i></div><h3 class="font-bold text-lg mb-2">Meet</h3><p class="text-sm text-slate-400 mb-3">Video conferencing</p><p class="text-xs text-purple-400">Meeting notes, transcription</p></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 4]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:07 - 0:10</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">Google Workspace is 5 core apps that talk to each other - not separate tools.</div></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>Walk through each app briefly - don't over-explained</li><li>Emphasize the AI integration column</li><li>Point out that Gemini is embedded in ALL of them</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Ecosystem Overview (0:07-0:10):</p><p>Google Workspace isn't just email - it's five core apps designed to work together:</p><ul><li><strong>Gmail:</strong> More than email - now with AI-powered summarization and smart compose</li><li><strong>Calendar:</strong> Scheduling intelligence built in</li><li><strong>Drive:</strong> Central file storage with AI search</li><li><strong>Docs/Sheets/Slides:</strong> The creation suite - all with Gemini AI assistance</li><li><strong>Meet:</strong> Video meetings with automatic note-taking</li></ul><p>The key insight: Gemini is embedded in ALL of them. One AI assistant across your entire workflow.</p></div></div>`
+            },
+            {
+                title: "Slide 5: The Workspace Advantage",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">The Workspace Advantage</h2><p class="text-xl text-slate-400 mb-10 text-center max-w-3xl">Unlike standalone tools, Google Workspace apps work together seamlessly</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl"><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-passport text-purple-400 text-xl"></i></div><div><h3 class="font-bold text-lg mb-2">Single Sign-On</h3><p class="text-slate-400">One identity across all apps. No multiple passwords.</p></div></div><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-database text-blue-400 text-xl"></i></div><div><h3 class="font-bold text-lg mb-2">Central Storage</h3><p class="text-slate-400">Files stored centrally in Drive. Access from any app.</p></div></div><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-wand-magic-sparkles text-emerald-400 text-xl"></i></div><div><h3 class="font-bold text-lg mb-2">Auto AI Updates</h3><p class="text-slate-400">New AI features added automatically across all apps.</p></div></div><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-12 h-12 rounded-xl bg-teal-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-mobile-screen text-teal-400 text-xl"></i></div><div><h3 class="font-bold text-lg mb-2">Cross-Device Sync</h3><p class="text-slate-400">Seamlessly switch between desktop, tablet, and phone.</p></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 5]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:10 - 0:12</span></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Workspace Advantage (0:10-0:12):</p><p>The key advantages that set Workspace apart from using random disconnected tools:</p><ul><li><strong>Single Sign-On:</strong> One login for everything - no password fatigue</li><li><strong>Central Storage:</strong> Everything saves to Drive - find it anywhere</li><li><strong>Auto AI Updates:</strong> When Google adds new AI features, they appear everywhere automatically</li><li><strong>Cross-Device Sync:</strong> Start on desktop, continue on phone - seamless</li></ul><p>This integration is WHY AI works so well here - Gemini can see your whole workflow, not just one app.</p></div></div>`
+            },
+            {
+                title: "Slide 6: Gemini Integration Points",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-6 gradient-text">Where to Find Gemini</h2><p class="text-lg text-slate-400 mb-8">Gemini is embedded directly in each Workspace app</p><div class="w-full max-w-5xl"><div class="overflow-hidden rounded-xl border border-slate-700"><table class="w-full"><thead class="bg-slate-800"><tr><th class="text-left p-4 text-purple-400 font-semibold">Application</th><th class="text-left p-4 text-purple-400 font-semibold">Gemini Location</th><th class="text-left p-4 text-purple-400 font-semibold">Activation</th></tr></thead><tbody class="divide-y divide-slate-700"><tr class="bg-slate-800/30"><td class="p-4"><i class="fa-solid fa-envelope text-red-400 mr-2"></i> Gmail</td><td class="p-4 text-slate-300">Sparkle icon in compose window</td><td class="p-4 text-emerald-400">Click to activate</td></tr><tr><td class="p-4"><i class="fa-solid fa-file text-green-400 mr-2"></i> Docs</td><td class="p-4 text-slate-300">Tools menu → Gemini OR shortcut</td><td class="p-4 text-emerald-400">Ctrl+Shift+M</td></tr><tr class="bg-slate-800/30"><td class="p-4"><i class="fa-solid fa-table text-blue-400 mr-2"></i> Sheets</td><td class="p-4 text-slate-300">Sparkle icon in toolbar</td><td class="p-4 text-emerald-400">Click to activate</td></tr><tr><td class="p-4"><i class="fa-solid fa-hard-drive text-yellow-400 mr-2"></i> Drive</td><td class="p-4 text-slate-300">gemini.google.com</td><td class="p-4 text-emerald-400">Web interface</td></tr><tr class="bg-slate-800/30"><td class="p-4"><i class="fa-solid fa-calendar text-blue-400 mr-2"></i> Calendar</td><td class="p-4 text-slate-300">Scheduling assist panel</td><td class="p-4 text-emerald-400">Right sidebar</td></tr><tr><td class="p-4"><i class="fa-solid fa-video text-teal-400 mr-2"></i> Meet</td><td class="p-4 text-slate-300">Meeting notes (post-meeting)</td><td class="p-4 text-emerald-400">Auto-generated</td></tr></tbody></table></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 6]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:12 - 0:16</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">Each app has a different way to activate Gemini - the hotkey card at the end will help you remember.</div></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>This is a reference slide - they'll get the full hotkey card at the end</li><li>Highlight the variety: some use sparkle icons, some use shortcuts</li><li>Mention they'll practice finding each of these in the workshop</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Integration Points (0:12-0:16):</p><p>Gemini is built into each app differently - this table shows you where to find it:</p><ul><li><strong>Gmail:</strong> Sparkle icon appears when composing</li><li><strong>Docs:</strong> Tools menu OR the shortcut Ctrl+Shift+M</li><li><strong>Sheets:</strong> Sparkle icon in the toolbar</li><li><strong>Drive:</strong> Use the web interface at gemini.google.com for file search</li><li><strong>Calendar:</strong> Scheduling assist panel in the right sidebar</li><li><strong>Meet:</strong> AI-generated notes appear automatically after meetings</li></ul><p>Don't memorize this now - the hotkey card at the end will be your reference.</p></div></div>`
+            },
+            {
+                title: "Slide 7: Three Ways Gemini Helps",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Three Ways Gemini Helps</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl"><div class="bg-gradient-to-br from-blue-600/20 to-blue-800/20 p-8 rounded-2xl border border-blue-500/30 text-center"><div class="w-20 h-20 mx-auto mb-6 rounded-full bg-blue-500/20 flex items-center justify-center"><i class="fa-solid fa-wand-magic-sparkles text-4xl text-blue-400"></i></div><h3 class="text-2xl font-bold mb-4 text-blue-300">Generate</h3><p class="text-slate-300">Create content from scratch - drafts, emails, ideas, reports</p></div><div class="bg-gradient-to-br from-purple-600/20 to-purple-800/20 p-8 rounded-2xl border border-purple-500/30 text-center"><div class="w-20 h-20 mx-auto mb-6 rounded-full bg-purple-500/20 flex items-center justify-center"><i class="fa-solid fa-compress text-4xl text-purple-400"></i></div><h3 class="text-2xl font-bold mb-4 text-purple-300">Summarize</h3><p class="text-slate-300">Condense long documents, email threads, and meetings into key points</p></div><div class="bg-gradient-to-br from-emerald-600/20 to-emerald-800/20 p-8 rounded-2xl border border-emerald-500/30 text-center"><div class="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/20 flex items-center justify-center"><i class="fa-solid fa-magnifying-glass-chart text-4xl text-emerald-400"></i></div><h3 class="text-2xl font-bold mb-4 text-emerald-300">Analyze</h3><p class="text-slate-300">Extract insights from data, identify patterns, compare options</p></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 7]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:16 - 0:19</span></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Three Functions (0:16-0:19):</p><p>Gemini does three main things across Workspace:</p><ol><li><strong>Generate:</strong> Create first drafts, write emails, brainstorm ideas, draft reports. Think "write this for me."</li><li><strong>Summarize:</strong> Take something long and make it short. Summarize threads, documents, meetings. Think "give me the key points."</li><li><strong>Analyze:</strong> Look at data or content and extract insights. Compare options, identify patterns. Think "what does this tell me?"</li></ol><p>Everything we'll do today fits into one of these three categories.</p></div></div>`
+            },
+            {
+                title: "Slide 8: Live Demonstration",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Live Demonstration</h2><p class="text-xl text-slate-400 mb-10">Watch the trainer perform these actions</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl"><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700"><div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center"><i class="fa-solid fa-envelope text-red-400"></i></div><h3 class="font-bold text-lg">Gmail Summarization</h3></div><ol class="text-sm text-slate-400 space-y-2"><li>1. Open a long email thread</li><li>2. Click Gemini sparkle icon</li><li>3. Select "Summarize this email"</li><li>4. Observe AI-generated summary</li></ol></div><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700"><div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center"><i class="fa-solid fa-file text-green-400"></i></div><h3 class="font-bold text-lg">Docs Generation</h3></div><ol class="text-sm text-slate-400 space-y-2"><li>1. Open new Google Doc</li><li>2. Press Ctrl+Shift+M</li><li>3. Type your prompt</li><li>4. Observe AI draft content</li></ol></div><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700"><div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center"><i class="fa-solid fa-table text-blue-400"></i></div><h3 class="font-bold text-lg">Sheets Formula</h3></div><ol class="text-sm text-slate-400 space-y-2"><li>1. Open spreadsheet</li><li>2. Click Gemini in toolbar</li><li>3. Ask for formula help</li><li>4. Observe AI-generated formula</li></ol></div><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700"><div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center"><i class="fa-solid fa-hard-drive text-yellow-400"></i></div><h3 class="font-bold text-lg">Drive Search</h3></div><ol class="text-sm text-slate-400 space-y-2"><li>1. Open gemini.google.com</li><li>2. Type natural language query</li><li>3. Ask to find a specific file</li><li>4. Watch AI locate the file</li></ol></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 8]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:19 - 0:23</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">This is a demo - talk through what you're doing as you do it. Let participants observe before they practice.</div></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>Perform these demos LIVE if possible</li><li>Think-aloud: narrate what you're doing and why</li><li>If demo environment isn't ready, use screenshots or recorded demo</li><li>This is a 4-minute overview - don't let it run long</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Live Demo (0:19-0:23):</p><p>Now I'll demonstrate all four in quick succession. Watch as I:</p><ol><li><strong>Gmail:</strong> Show an email thread, click Gemini, summarize it - watch it extract key points</li><li><strong>Docs:</strong> Open a new doc, press Ctrl+Shift+M, type a prompt like "Write a paragraph about Q3 wins" - show the AI draft appear</li><li><strong>Sheets:</strong> Open a spreadsheet, click Gemini, ask for a formula - show it write the formula for you</li><li><strong>Drive:</strong> Open gemini.google.com, type a natural language search - watch it find files you didn't know you had</li></ol><p>Questions? Good. Now it's YOUR turn.</p></div></div>`
+            },
+            {
+                title: "Slide 9: Guided Workshop - Task 1",
+                content: `<div class="w-full flex flex-col items-center justify-center"><div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div><h2 class="text-4xl font-bold mb-6">Guided Workshop: Task 1</h2><p class="text-xl text-slate-400 mb-8">Navigate the Core Apps</p><div class="w-full max-w-4xl"><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-6"><h3 class="font-bold text-lg mb-4 text-emerald-400">Instructions:</h3><p class="text-slate-300 mb-4">Open each application and record what you notice:</p><table class="w-full text-sm"><thead class="bg-slate-700/50"><tr><th class="p-3 text-left text-purple-400">App</th><th class="p-3 text-left text-purple-400">What I Noticed</th><th class="p-3 text-left text-purple-400">Gemini Location</th></tr></thead><tbody class="divide-y divide-slate-700"><tr><td class="p-3"><i class="fa-solid fa-envelope text-red-400 mr-2"></i> Gmail</td><td class="p-3 text-slate-400">________________</td><td class="p-3 text-slate-400">________</td></tr><tr><td class="p-3"><i class="fa-solid fa-calendar text-blue-400 mr-2"></i> Calendar</td><td class="p-3 text-slate-400">________________</td><td class="p-3 text-slate-400">________</td></tr><tr><td class="p-3"><i class="fa-solid fa-hard-drive text-yellow-400 mr-2"></i> Drive</td><td class="p-3 text-slate-400">________________</td><td class="p-3 text-slate-400">________</td></tr><tr><td class="p-3"><i class="fa-solid fa-file text-green-400 mr-2"></i> Docs</td><td class="p-3 text-slate-400">________________</td><td class="p-3 text-slate-400">________</td></tr><tr><td class="p-3"><i class="fa-solid fa-table text-blue-400 mr-2"></i> Sheets</td><td class="p-3 text-slate-400">________________</td><td class="p-3 text-slate-400">________</td></tr></tbody></table></div><p class="text-center text-slate-500 text-sm"><i class="fa-regular fa-clock mr-2"></i> Time: 5 minutes</p></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 9]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:23 - 0:28</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">Workshop time - circulate and help participants who are stuck. Encourage peer help.</div></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>Announce: "You have 5 minutes for Task 1 - explore each app and find where Gemini is"</li><li>Circulate the room - check that everyone is making progress</li><li>Help anyone who can't find Gemini in a specific app</li><li>If someone finishes early, ask them to help a neighbor</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Workshop Intro (0:23):</p><p>"Alright, it's your turn. Task 1: Explore the 5 apps and find where Gemini lives in each one."</p><p class="script-heading">During Workshop (0:23-0:28):</p><ul><li>Walk around the room</li><li>Check that participants can access Workspace</li><li>Help anyone stuck on finding Gemini icons</li><li>Answer questions briefly - this is hands-on time</li><li>Call time at 5 minutes</li></ul></div></div>`
+            },
+            {
+                title: "Slide 10: Guided Workshop - Task 2",
+                content: `<div class="w-full flex flex-col items-center justify-center"><div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div><h2 class="text-4xl font-bold mb-6">Guided Workshop: Task 2</h2><p class="text-xl text-slate-400 mb-8">Send Your First AI Prompts</p><div class="w-full max-w-4xl"><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-slate-800/50 p-5 rounded-xl border border-red-500/30"><h3 class="font-bold text-red-400 mb-3">Task A: Gmail AI</h3><ol class="text-sm text-slate-400 space-y-1"><li>1. Open an email</li><li>2. Click Gemini</li><li>3. Click "Summarize"</li></ol><div class="mt-3 p-2 bg-slate-700/50 rounded text-xs text-slate-500">Result: ___________</div></div><div class="bg-slate-800/50 p-5 rounded-xl border border-green-500/30"><h3 class="font-bold text-green-400 mb-3">Task B: Docs AI</h3><ol class="text-sm text-slate-400 space-y-1"><li>1. Create new Doc</li><li>2. Press Ctrl+Shift+M</li><li>3. Type prompt shown</li></ol><div class="mt-3 p-2 bg-slate-700/50 rounded text-xs text-slate-500">"Write an agenda..."</div></div><div class="bg-slate-800/50 p-5 rounded-xl border border-blue-500/30"><h3 class="font-bold text-blue-400 mb-3">Task C: Sheets AI</h3><ol class="text-sm text-slate-400 space-y-1"><li>1. Create spreadsheet</li><li>2. Click Gemini</li><li>3. Ask about formulas</li></ol><div class="mt-3 p-2 bg-slate-700/50 rounded text-xs text-slate-500">Example: _________</div></div></div><p class="text-center text-slate-500 text-sm mt-6"><i class="fa-regular fa-clock mr-2"></i> Time: 5 minutes</p></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 10]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:28 - 0:33</span></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>This is the key workshop task - everyone should complete all 3 sub-tasks</li><li>Circulate and help those who got stuck</li><li>Make sure everyone sends at least one actual prompt</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Task 2 Instructions (0:28):</p><p>"Now the real fun begins. Task 2: Send your first AI prompts in three apps."</p><ul><li><strong>Task A - Gmail:</strong> Open any email, click Gemini, click "Summarize this email", record the result</li><li><strong>Task B - Docs:</strong> Create a new doc, press Ctrl+Shift+M, type the prompt shown, observe the response</li><li><strong>Task C - Sheets:</strong> Create a spreadsheet, click Gemini in toolbar, ask for formula examples, record one</li></ul><p>These don't need to be perfect - just get comfortable USING Gemini. 5 minutes."</p></div></div>`
+            },
+            {
+                title: "Slide 11: Pair Exercise",
+                content: `<div class="w-full flex flex-col items-center justify-center"><div class="mb-4 px-4 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-semibold border border-purple-500/30">PAIR EXERCISE</div><h2 class="text-4xl font-bold mb-6">Share Discoveries</h2><p class="text-xl text-slate-400 mb-8">With your neighbor:</p><div class="w-full max-w-3xl"><div class="space-y-4"><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">1</span></div><p class="text-lg text-slate-200">Share one surprising thing you discovered about Gemini</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">2</span></div><p class="text-lg text-slate-200">Show each other where you found the Gemini feature</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">3</span></div><p class="text-lg text-slate-200">Help each other if either person got stuck</p></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 11]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:33 - 0:36</span></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>Have participants pair up with a neighbor</li><li>Give them 3 minutes to share discoveries</li><li>Bring group back for quick share-back</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Pair Exercise (0:33-0:36):</p><p>"Turn to your neighbor. You have 3 minutes to:"</p><ol><li>Share one surprising thing you discovered about Gemini</li><li>Show each other where you found the Gemini feature</li><li>Help each other if either person got stuck on anything</li></ol><p>This social learning phase helps consolidate what you've learned by explaining it to others.</p></div></div>`
+            },
+            {
+                title: "Slide 12: Pattern Recap",
+                content: `<div class="w-full flex flex-col items-center justify-center text-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Pattern Recap</h2><div class="max-w-3xl"><div class="bg-gradient-to-br from-purple-900/30 to-slate-900/50 p-8 rounded-2xl border border-purple-500/30 mb-8"><p class="text-2xl md:text-3xl font-medium text-white leading-relaxed">"Gemini is your AI workmate embedded in every Workspace app. It can <span class="text-purple-400 font-bold">generate</span>, <span class="text-blue-400 font-bold">summarize</span>, and <span class="text-emerald-400 font-bold">analyze</span> - and you activate it differently in each app."</p></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 12]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:36 - 0:38</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">The ONE thing to remember: Gemini is your AI workmate across ALL apps.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Pattern Recap (0:36-0:38):</p><p>"Let's compress what we've learned. What's the ONE thing to remember?"</p><p>Read the quote on screen:</p><p><em>"Gemini is your AI workmate embedded in every Workspace app. It can generate, summarize, and analyze - and you activate it differently in each app."</em></p><p>That's it. Three functions, five apps, one AI assistant. Now let's take away our reference tool."</p></div></div>`
+            },
+            {
+                title: "Slide 13: Take-Away: Gemini Hotkeys",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-6 gradient-text">Take-Away: Hotkeys Reference</h2><p class="text-lg text-slate-400 mb-8">Save this card for quick reference</p><div class="w-full max-w-3xl"><div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden"><div class="bg-gradient-to-r from-purple-600 to-blue-600 p-4 text-center"><h3 class="text-xl font-bold">GEMINI HOTKEYS IN GOOGLE WORKSPACE</h3></div><div class="p-6 space-y-4"><div class="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg"><div class="flex items-center gap-3"><i class="fa-solid fa-envelope text-red-400 w-8"></i><span class="font-semibold">Gmail</span></div><span class="text-emerald-400 font-mono">Click sparkle icon</span></div><div class="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg"><div class="flex items-center gap-3"><i class="fa-solid fa-file text-green-400 w-8"></i><span class="font-semibold">Docs</span></div><span class="text-emerald-400 font-mono">Ctrl + Shift + M</span></div><div class="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg"><div class="flex items-center gap-3"><i class="fa-solid fa-table text-blue-400 w-8"></i><span class="font-semibold">Sheets</span></div><span class="text-emerald-400 font-mono">Click sparkle icon</span></div><div class="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg"><div class="flex items-center gap-3"><i class="fa-solid fa-hard-drive text-yellow-400 w-8"></i><span class="font-semibold">Drive</span></div><span class="text-emerald-400 font-mono">gemini.google.com</span></div><div class="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg"><div class="flex items-center gap-3"><i class="fa-solid fa-calendar text-blue-400 w-8"></i><span class="font-semibold">Calendar</span></div><span class="text-emerald-400 font-mono">Right sidebar panel</span></div></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 13]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:38 - 0:39</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">This is the compression artifact - participants should screenshot or photograph this.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Hotkey Card (0:38-0:39):</p><p>"This is your take-away from Module 1. Screenshot or photograph this reference card."</p><p>Quickly review each entry - this is a visual anchor, not a teaching moment.</p><p>Tell participants: Keep this somewhere accessible. Tomorrow morning, try ONE of these shortcuts.</p></div></div>`
+            },
+            {
+                title: "Slide 14: Bridge to Module 2",
+                content: `<div class="w-full flex flex-col items-center justify-center text-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Coming Up Next</h2><div class="max-w-3xl mb-8"><div class="bg-gradient-to-br from-blue-900/30 to-purple-900/30 p-8 rounded-2xl border border-purple-500/30"><p class="text-sm text-purple-400 uppercase tracking-wider mb-4">Module 2 Preview</p><h3 class="text-3xl font-bold mb-4">Collaboration with AI</h3><p class="text-xl text-slate-300 mb-6">Learn how Gemini enables real-time collaboration - using AI to co-author documents, generate thoughtful comments, and work together with colleagues.</p><div class="flex items-center justify-center gap-4 text-slate-400"><span><i class="fa-regular fa-clock mr-2"></i>30 minutes</span><span class="text-purple-400">|</span><span><i class="fa-solid fa-graduation-cap mr-2"></i>Module 2 of 8</span></div></div></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 max-w-2xl"><p class="text-lg text-slate-300 mb-3">Before next session, try this:</p><p class="text-slate-400">Share a Google Doc with a colleague and experiment with the comment feature.</p></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 14]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:39 - 0:40</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">End strong - preview what's next and give them one actionable thing to try.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Wrap-Up (0:39-0:40):</p><p>"Module 1 complete! Great work getting your first AI prompts sent."</p><p><strong>Next module preview:</strong> Module 2 is about collaboration - using Gemini to co-author documents with colleagues, generate thoughtful comments, and work together more efficiently.</p><p><strong>Your homework:</strong> Before our next session, share a Google Doc with a colleague and experiment with the comment feature. Notice how the document updates in real-time.</p><p>See you in Module 2!"</p></div></div>`
+            }
+        ];
+
+        let currentSlide = 0;
+        const totalSlides = courseData.length;
+
+        function updateSlide() {
+            const slide = courseData[currentSlide];
+            document.getElementById('slide-info').innerHTML = `<h3 class="text-purple-300 font-bold text-lg mb-4">${slide.title}</h3>`;
+            document.getElementById('notes-content').innerHTML = slide.notes;
+            document.getElementById('slideCounter').textContent = `Slide ${currentSlide + 1} / ${totalSlides}`;
+            document.getElementById('bannerSlide').textContent = currentSlide + 1;
+            document.getElementById('bannerTotal').textContent = totalSlides;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+
+            const previewContent = document.getElementById('preview-content');
+            previewContent.innerHTML = slide.content;
+            previewContent.style.fontSize = '12px';
+            previewContent.style.lineHeight = '1.4';
+
+            const aspectRatio = 16 / 9;
+            const containerWidth = previewContent.parentElement.clientWidth;
+            const containerHeight = previewContent.parentElement.clientHeight;
+
+            let scale = 1;
+            if (containerWidth && containerHeight) {
+                const scaleX = containerWidth / 1600;
+                const scaleY = containerHeight / (1600 / aspectRatio);
+                scale = Math.min(scaleX, scaleY, 1);
+            }
+
+            previewContent.style.transform = `scale(${scale})`;
+            previewContent.style.width = '1600px';
+            previewContent.style.height = `${1600 / aspectRatio}px`;
+            previewContent.style.maxWidth = 'none';
+
+            channel.postMessage({ type: 'sync', index: currentSlide });
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) { currentSlide--; updateSlide(); }
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', nextSlide);
+        document.getElementById('prevBtn').addEventListener('click', prevSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+        });
+
+        const splitSlider = document.getElementById('splitSlider');
+        const splitValue = document.getElementById('splitValue');
+        splitSlider.addEventListener('input', () => {
+            const val = splitSlider.value;
+            splitValue.textContent = val + '%';
+            document.getElementById('previewPane').style.height = val + '%';
+            document.getElementById('notesPane').style.flex = '1';
+        });
+
+        window.addEventListener('resize', updateSlide);
+        updateSlide();
+    </script>
+</body>
+</html>

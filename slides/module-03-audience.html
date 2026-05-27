@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Module 3: Document Automation (Audience)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow: hidden; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .slide { opacity: 0; transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; pointer-events: none; position: absolute; inset: 0; transform: scale(0.98); overflow-y: auto; overflow-x: hidden; display: flex; }
+        .slide.active { opacity: 1; pointer-events: auto; transform: scale(1); z-index: 10; }
+        .gradient-text { background: linear-gradient(135deg, #a78bfa, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-0 md:p-4 lg:p-8 bg-slate-950">
+    <div class="relative bg-slate-900 md:shadow-2xl md:rounded-2xl md:border border-slate-800 overflow-hidden flex flex-col w-full h-full md:aspect-video max-h-[100dvh] md:max-h-[90vh] max-w-[1600px]">
+        <div class="absolute top-2 left-2 md:top-4 md:left-4 z-20 flex items-center gap-2 bg-slate-800/80 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1 rounded-full border border-slate-700">
+            <span class="text-xs md:text-sm font-semibold text-purple-400">MODULE 3</span>
+        </div>
+        <div class="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex items-center gap-2 bg-slate-800/80 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1 rounded-full border border-slate-700">
+            <span class="text-xs md:text-sm font-mono text-slate-400">Slide</span>
+            <span id="slideCounter" class="text-xs md:text-sm font-bold text-purple-400">1</span>
+            <span class="text-xs md:text-sm font-mono text-slate-500">/</span>
+            <span id="totalSlides" class="text-xs md:text-sm font-mono text-slate-400">16</span>
+        </div>
+        <div class="flex-1 relative w-full h-full p-6 sm:p-8 md:p-16 flex items-center justify-center overflow-hidden" id="slides-wrapper">
+
+            <!-- SLIDE 1: Title -->
+            <div class="slide active" data-index="0">
+                <div class="w-full flex flex-col items-center justify-center text-center">
+                    <div class="mb-6 px-4 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-semibold border border-purple-500/30">MODULE 3</div>
+                    <h1 class="text-5xl md:text-7xl font-extrabold mb-6">Document Automation</h1>
+                    <p class="text-2xl md:text-3xl text-slate-400 mb-8">Templates, Variables, and AI Content Generation</p>
+                    <div class="flex items-center gap-4 text-slate-500 text-lg">
+                        <span><i class="fa-regular fa-clock mr-2"></i>30 min</span>
+                        <span class="text-purple-400">|</span>
+                        <span><i class="fa-solid fa-graduation-cap mr-2"></i>Module 3 of 8</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: Learning Objectives -->
+            <div class="slide" data-index="1">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Learning Objectives</h2>
+                    <div class="space-y-5 w-full max-w-4xl">
+                        <div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                            <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <span class="text-purple-400 font-bold">1</span>
+                            </div>
+                            <p class="text-xl font-semibold text-white">Create a reusable document template with placeholder markers</p>
+                        </div>
+                        <div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                            <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <span class="text-purple-400 font-bold">2</span>
+                            </div>
+                            <p class="text-xl font-semibold text-white">Use Gemini to fill templates with variable content</p>
+                        </div>
+                        <div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                            <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <span class="text-purple-400 font-bold">3</span>
+                            </div>
+                            <p class="text-xl font-semibold text-white">Generate 3 content variations (different tones/formats) from a single template</p>
+                        </div>
+                        <div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                            <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <span class="text-purple-400 font-bold">4</span>
+                            </div>
+                            <p class="text-xl font-semibold text-white">Save and organize templates for ongoing use</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: Session Overview -->
+            <div class="slide" data-index="2">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Session Overview</h2>
+                    <div class="w-full max-w-4xl">
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="bg-blue-600/20 p-4 rounded-xl border-l-4 border-blue-400 text-center">
+                                <div class="text-3xl font-bold text-blue-400 mb-2">12</div>
+                                <div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div>
+                                <div class="text-lg font-semibold mt-2 text-blue-300">LEARN</div>
+                            </div>
+                            <div class="bg-emerald-600/20 p-4 rounded-xl border-l-4 border-emerald-400 text-center">
+                                <div class="text-3xl font-bold text-emerald-400 mb-2">18</div>
+                                <div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div>
+                                <div class="text-lg font-semibold mt-2 text-emerald-300">CONSOLIDATE</div>
+                            </div>
+                            <div class="bg-purple-600/20 p-4 rounded-xl border-l-4 border-purple-400 text-center">
+                                <div class="text-3xl font-bold text-purple-400 mb-2">2</div>
+                                <div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div>
+                                <div class="text-lg font-semibold mt-2 text-purple-300">COMPRESS</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <p class="text-purple-400 font-semibold mb-2">LEARN Phase</p>
+                                    <ul class="text-slate-400 space-y-1">
+                                        <li>• Why templates save time</li>
+                                        <li>• Template structure</li>
+                                        <li>• Live demonstration</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="text-emerald-400 font-semibold mb-2">CONSOLIDATE Phase</p>
+                                    <ul class="text-slate-400 space-y-1">
+                                        <li>• Build a template</li>
+                                        <li>• Fill with AI</li>
+                                        <li>• Generate variations</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="text-purple-400 font-semibold mb-2">COMPRESS Phase</p>
+                                    <ul class="text-slate-400 space-y-1">
+                                        <li>• Pattern recap</li>
+                                        <li>• Template starter kit</li>
+                                        <li>• Bridge to Module 4</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: The Repetition Problem -->
+            <div class="slide" data-index="3">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">The Repetition Problem</h2>
+                    <p class="text-xl text-slate-400 mb-8">Professionals spend significant time recreating similar documents</p>
+                    <div class="w-full max-w-4xl">
+                        <div class="overflow-hidden rounded-xl border border-slate-700 mb-6">
+                            <table class="w-full">
+                                <thead class="bg-slate-800">
+                                    <tr>
+                                        <th class="text-left p-4 text-purple-400 font-semibold">Document Type</th>
+                                        <th class="text-left p-4 text-purple-400 font-semibold">Frequency</th>
+                                        <th class="text-left p-4 text-purple-400 font-semibold">Time to Create</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-700">
+                                    <tr class="bg-slate-800/30">
+                                        <td class="p-4 text-slate-300"><i class="fa-solid fa-clipboard text-purple-400 mr-2"></i>Meeting notes</td>
+                                        <td class="p-4 text-emerald-400">Daily</td>
+                                        <td class="p-4 text-slate-400">5-10 min</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-4 text-slate-300"><i class="fa-solid fa-chart-line text-purple-400 mr-2"></i>Status updates</td>
+                                        <td class="p-4 text-emerald-400">Weekly</td>
+                                        <td class="p-4 text-slate-400">15-20 min</td>
+                                    </tr>
+                                    <tr class="bg-slate-800/30">
+                                        <td class="p-4 text-slate-300"><i class="fa-solid fa-briefcase text-purple-400 mr-2"></i>Project briefs</td>
+                                        <td class="p-4 text-emerald-400">Per project</td>
+                                        <td class="p-4 text-slate-400">30-45 min</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-4 text-slate-300"><i class="fa-solid fa-envelope text-purple-400 mr-2"></i>Client emails</td>
+                                        <td class="p-4 text-emerald-400">Multiple/day</td>
+                                        <td class="p-4 text-slate-400">5-10 min each</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="bg-red-900/20 p-5 rounded-xl border border-red-500/30 text-center">
+                            <p class="text-2xl font-bold text-red-400 mb-2">65 hours/year</p>
+                            <p class="text-slate-400">Time lost creating 5 similar documents/week at 15 min each</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 5: The Template Solution -->
+            <div class="slide" data-index="4">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">The Template Solution</h2>
+                    <div class="w-full max-w-5xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                                        <i class="fa-solid fa-file text-blue-400 text-xl"></i>
+                                    </div>
+                                    <h3 class="font-bold text-xl text-blue-400">Fixed Elements</h3>
+                                </div>
+                                <p class="text-slate-300 mb-3">Already written and consistent:</p>
+                                <ul class="text-slate-400 space-y-2">
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Headers and section titles</li>
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Standard text and instructions</li>
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Formatting and structure</li>
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Branding and logos</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-purple-400 text-xl"></i>
+                                    </div>
+                                    <h3 class="font-bold text-xl text-purple-400">Variable Elements</h3>
+                                </div>
+                                <p class="text-slate-300 mb-3">Marked as placeholders:</p>
+                                <ul class="text-slate-400 space-y-2">
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>[Client Name]</li>
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>[DATE]</li>
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>[AGENDA ITEMS]</li>
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>[ACTION ITEMS]</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-6 bg-emerald-900/20 p-5 rounded-xl border border-emerald-500/30 text-center">
+                            <p class="text-xl text-emerald-400 font-semibold">AI Enhancement: Gemini fills placeholders AND generates appropriate content</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 6: Anatomy of a Template -->
+            <div class="slide" data-index="5">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-6 gradient-text">Anatomy of an AI-Friendly Template</h2>
+                    <div class="w-full max-w-4xl">
+                        <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+                            <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-3 text-center">
+                                <p class="font-bold text-sm">TEMPLATE COMPONENTS</p>
+                            </div>
+                            <div class="p-5 text-sm space-y-4">
+                                <div class="border-b border-slate-700 pb-3">
+                                    <p class="text-purple-400 font-semibold mb-1">HEADER (Fixed)</p>
+                                    <p class="text-slate-400">[Company Logo] | Document Type: [TYPE] | Date: [DATE]</p>
+                                </div>
+                                <div class="border-b border-slate-700 pb-3">
+                                    <p class="text-purple-400 font-semibold mb-1">CONTENT (Variable)</p>
+                                    <p class="text-slate-400">## [TOPIC/HEADER]</p>
+                                    <p class="text-slate-400">[Variable content - AI fills this]</p>
+                                    <p class="text-slate-400 mt-2">## Key Points</p>
+                                    <p class="text-slate-400">• [Point 1 - AI generates]</p>
+                                    <p class="text-slate-400">• [Point 2 - AI generates]</p>
+                                </div>
+                                <div>
+                                    <p class="text-purple-400 font-semibold mb-1">FOOTER (Fixed)</p>
+                                    <p class="text-slate-400">Author: [YOUR NAME] | Version 1.0 | [DATE]</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 bg-yellow-900/20 p-4 rounded-xl border border-yellow-500/30">
+                            <p class="text-yellow-400 font-semibold mb-1"><i class="fa-solid fa-lightbulb mr-2"></i>Variable Marker Conventions:</p>
+                            <p class="text-slate-300 text-sm"><span class="text-purple-400">[BRACKETS]</span> = Replace | <span class="text-purple-400">[UPPER CASE]</span> = Auto-fill | <span class="text-purple-400">[TASK/ACTION]</span> = AI generates</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 7: Effective Variable Instructions -->
+            <div class="slide" data-index="6">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Effective vs. Weak Prompts</h2>
+                    <div class="w-full max-w-5xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-red-900/20 p-6 rounded-xl border-2 border-red-500/50">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                                        <i class="fa-solid fa-xmark text-red-400 text-xl"></i>
+                                    </div>
+                                    <h3 class="font-bold text-xl text-red-400">Weak Prompt</h3>
+                                </div>
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <p class="text-slate-400 text-lg">"Write meeting notes"</p>
+                                </div>
+                                <p class="text-red-400 mt-4 text-sm">Too vague - AI doesn't know context, audience, or specifics</p>
+                            </div>
+                            <div class="bg-emerald-900/20 p-6 rounded-xl border-2 border-emerald-500/50">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                        <i class="fa-solid fa-check text-emerald-400 text-xl"></i>
+                                    </div>
+                                    <h3 class="font-bold text-xl text-emerald-400">Strong Prompt</h3>
+                                </div>
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <p class="text-emerald-400 text-sm leading-relaxed">"Write meeting notes for a 30-minute standup with 5 team members. Include: attendance, yesterday's accomplishments, today's priorities, blockers."</p>
+                                </div>
+                                <p class="text-emerald-400 mt-4 text-sm">Specific context = accurate, useful output</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 8: Live Demonstration -->
+            <div class="slide" data-index="7">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Live Demonstration</h2>
+                    <p class="text-xl text-slate-400 mb-10">Watch the trainer perform these actions</p>
+                    <div class="w-full max-w-5xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                                        <span class="text-blue-400 font-bold text-sm">1</span>
+                                    </div>
+                                    <h3 class="font-bold text-lg">Open Template Folder</h3>
+                                </div>
+                                <p class="text-sm text-slate-400">Navigate to Drive → Open Meeting Notes Template</p>
+                            </div>
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                                        <span class="text-purple-400 font-bold text-sm">2</span>
+                                    </div>
+                                    <h3 class="font-bold text-lg">Show Template Structure</h3>
+                                </div>
+                                <p class="text-sm text-slate-400">Highlight placeholders, explain fixed vs. variable</p>
+                            </div>
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                                        <span class="text-emerald-400 font-bold text-sm">3</span>
+                                    </div>
+                                    <h3 class="font-bold text-lg">Fill Template with AI</h3>
+                                </div>
+                                <p class="text-sm text-slate-400">Ctrl+Shift+M → Paste detailed prompt → Generate</p>
+                            </div>
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                                        <span class="text-yellow-400 font-bold text-sm">4</span>
+                                    </div>
+                                    <h3 class="font-bold text-lg">Generate Variations</h3>
+                                </div>
+                                <p class="text-sm text-slate-400">Select section → Prompt for 3 tones</p>
+                            </div>
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 md:col-span-2">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
+                                        <span class="text-red-400 font-bold text-sm">5</span>
+                                    </div>
+                                    <h3 class="font-bold text-lg">Save as New Document</h3>
+                                </div>
+                                <p class="text-sm text-slate-400">File → Make a copy → Rename with date/context → Demonstrate template preservation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 9: Workshop - Build Template -->
+            <div class="slide" data-index="8">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div>
+                    <h2 class="text-4xl font-bold mb-4">Task 1: Build Your Meeting Notes Template</h2>
+                    <p class="text-xl text-slate-400 mb-6">Time: 5 minutes</p>
+                    <div class="w-full max-w-4xl">
+                        <div class="bg-slate-800/50 p-5 rounded-xl border border-emerald-500/30 mb-4">
+                            <h3 class="font-bold text-emerald-400 mb-3">Create this structure:</h3>
+                            <div class="bg-slate-900 p-4 rounded-lg text-sm font-mono text-slate-300 space-y-1">
+                                <p>MEETING NOTES TEMPLATE</p>
+                                <p>Date: [DATE] | Type: [TYPE] | Attendees: [NAMES]</p>
+                                <p>AGENDA</p>
+                                <p>1. [AGENDA ITEM 1]</p>
+                                <p>2. [AGENDA ITEM 2]</p>
+                                <p>DISCUSSION NOTES [AI fills]</p>
+                                <p>KEY DECISIONS • [DECISION 1]</p>
+                                <p>ACTION ITEMS ☐ [ACTION] - Owner: [NAME]</p>
+                                <p>NEXT MEETING: [DATE]</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center gap-4">
+                            <div class="bg-purple-900/20 px-4 py-2 rounded-lg border border-purple-500/30">
+                                <p class="text-purple-400 text-sm"><i class="fa-solid fa-bold mr-1"></i>Bold placeholders</p>
+                            </div>
+                            <div class="bg-purple-900/20 px-4 py-2 rounded-lg border border-purple-500/30">
+                                <p class="text-purple-400 text-sm"><i class="fa-solid fa-heading mr-1"></i>Use Heading 2</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 10: Workshop - Fill Template -->
+            <div class="slide" data-index="9">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div>
+                    <h2 class="text-4xl font-bold mb-4">Task 2: Fill Template Using AI</h2>
+                    <p class="text-xl text-slate-400 mb-6">Time: 5 minutes</p>
+                    <div class="w-full max-w-4xl">
+                        <div class="bg-slate-800/50 p-5 rounded-xl border border-emerald-500/30 mb-4">
+                            <ol class="space-y-3">
+                                <li class="flex items-start gap-3">
+                                    <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-emerald-400 font-bold text-sm">1</span>
+                                    </div>
+                                    <p class="text-slate-200">Make a copy of your template</p>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-emerald-400 font-bold text-sm">2</span>
+                                    </div>
+                                    <p class="text-slate-200">Open Gemini: <span class="text-purple-400 font-mono">Ctrl+Shift+M</span></p>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-emerald-400 font-bold text-sm">3</span>
+                                    </div>
+                                    <p class="text-slate-200">Paste the prompt below</p>
+                                </li>
+                            </ol>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-sm">
+                            <p class="text-purple-400 font-semibold mb-2">Fill this meeting notes template for:</p>
+                            <p class="text-slate-300 mb-1">• Date: May 27, 2026</p>
+                            <p class="text-slate-300 mb-1">• Meeting Type: Weekly Team Standup</p>
+                            <p class="text-slate-300 mb-1">• Attendees: Alex, Jordan, Taylor, Morgan</p>
+                            <p class="text-slate-300">• Generate realistic notes, 2 decisions, 3 action items</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 11: Workshop - Save -->
+            <div class="slide" data-index="10">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div>
+                    <h2 class="text-4xl font-bold mb-4">Task 3: Save and Organize</h2>
+                    <p class="text-xl text-slate-400 mb-6">Time: 2 minutes</p>
+                    <div class="w-full max-w-3xl">
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-emerald-500/30">
+                            <div class="space-y-4">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-emerald-400 font-bold">1</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-lg text-slate-200 font-semibold">Save with meaningful filename</p>
+                                        <p class="text-slate-400 text-sm">Format: "Standup Notes - 2026-05-27"</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-emerald-400 font-bold">2</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-lg text-slate-200 font-semibold">Create a template folder in Drive</p>
+                                        <p class="text-slate-400 text-sm">Name it: "My Templates"</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-emerald-400 font-bold">3</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-lg text-slate-200 font-semibold">Move template to template folder</p>
+                                        <p class="text-slate-400 text-sm">Keep template pristine - work on copies</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 12: Variation Exercise -->
+            <div class="slide" data-index="11">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <div class="mb-4 px-4 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-semibold border border-purple-500/30">VARIATION EXERCISE</div>
+                    <h2 class="text-4xl font-bold mb-8">Generate Content Variations</h2>
+                    <p class="text-xl text-slate-400 mb-8">Time: 3 minutes</p>
+                    <div class="w-full max-w-4xl">
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-purple-500/30 mb-6">
+                            <p class="text-slate-300 mb-4">Take your filled "Key Decisions" section and generate 3 variations:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-blue-900/20 p-4 rounded-lg border border-blue-500/30">
+                                    <p class="text-blue-400 font-semibold mb-2">1. Formal Executive</p>
+                                    <p class="text-xs text-slate-400">"Rewrite as formal executive briefing"</p>
+                                </div>
+                                <div class="bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
+                                    <p class="text-purple-400 font-semibold mb-2">2. Bullet Summary</p>
+                                    <p class="text-xs text-slate-400">"Summarize as 2-bullet update"</p>
+                                </div>
+                                <div class="bg-emerald-900/20 p-4 rounded-lg border border-emerald-500/30">
+                                    <p class="text-emerald-400 font-semibold mb-2">3. Social Media</p>
+                                    <p class="text-xs text-slate-400">"Convert to social post (100 words)"</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-purple-900/20 p-4 rounded-xl border border-purple-500/30 text-center">
+                            <p class="text-purple-300 font-semibold">Which tone was most useful? When would you use each?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 13: Pattern Recap -->
+            <div class="slide" data-index="12">
+                <div class="w-full flex flex-col items-center justify-center text-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Pattern Recap</h2>
+                    <div class="max-w-3xl">
+                        <div class="bg-gradient-to-br from-purple-900/30 to-slate-900/50 p-8 rounded-2xl border border-purple-500/30 mb-8">
+                            <p class="text-2xl md:text-3xl font-medium text-white leading-relaxed">
+                                "Templates + AI = Consistent documents, generated instantly. <span class="text-emerald-400 font-bold">Build once, use forever, fill with AI.</span>"
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                            <h3 class="font-bold text-lg mb-4 text-purple-400">Template Building Rules:</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">1</span>
+                                    <p class="text-slate-300">Mark every variable with [BRACKETS]</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">2</span>
+                                    <p class="text-slate-300">Give AI context (who, what, when, why)</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">3</span>
+                                    <p class="text-slate-300">Preview AI output before accepting</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">4</span>
+                                    <p class="text-slate-300">Save each output with meaningful filename</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 14: Take-Away - Template Starter Kit -->
+            <div class="slide" data-index="13">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-6 gradient-text">Take-Away: Template Starter Kit</h2>
+                    <p class="text-lg text-slate-400 mb-6">5 templates to start your automation library</p>
+                    <div class="w-full max-w-3xl">
+                        <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+                            <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-4 text-center">
+                                <h3 class="text-xl font-bold">MY TEMPLATE STARTER KIT</h3>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div class="flex items-start gap-4 p-4 bg-slate-700/50 rounded-lg">
+                                    <span class="text-2xl">📋</span>
+                                    <div>
+                                        <p class="font-bold text-white">1. Meeting Notes</p>
+                                        <p class="text-sm text-slate-400">Pre-filled agenda, action items, decision tracker</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 p-4 bg-slate-700/50 rounded-lg">
+                                    <span class="text-2xl">📊</span>
+                                    <div>
+                                        <p class="font-bold text-white">2. Status Update</p>
+                                        <p class="text-sm text-slate-400">Weekly/monthly progress with metrics placeholders</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 p-4 bg-slate-700/50 rounded-lg">
+                                    <span class="text-2xl">📧</span>
+                                    <div>
+                                        <p class="font-bold text-white">3. Client Email</p>
+                                        <p class="text-sm text-slate-400">Opening, body, closing with tone markers</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 p-4 bg-slate-700/50 rounded-lg">
+                                    <span class="text-2xl">📝</span>
+                                    <div>
+                                        <p class="font-bold text-white">4. Project Brief</p>
+                                        <p class="text-sm text-slate-400">Objective, scope, timeline, resources</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 p-4 bg-slate-700/50 rounded-lg">
+                                    <span class="text-2xl">✅</span>
+                                    <div>
+                                        <p class="font-bold text-white">5. Checklist</p>
+                                        <p class="text-sm text-slate-400">Repeating tasks with checkboxes and assignees</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 15: Bridge to Module 4 -->
+            <div class="slide" data-index="14">
+                <div class="w-full flex flex-col items-center justify-center text-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Coming Up Next</h2>
+                    <div class="max-w-3xl mb-8">
+                        <div class="bg-gradient-to-br from-blue-900/30 to-purple-900/30 p-8 rounded-2xl border border-purple-500/30">
+                            <p class="text-sm text-purple-400 uppercase tracking-wider mb-4">Module 4 Preview</p>
+                            <h3 class="text-3xl font-bold mb-4">AI-Powered Research</h3>
+                            <p class="text-xl text-slate-300 mb-6">Using Gemini to synthesize information from multiple sources, extract key insights, and generate structured summaries.</p>
+                            <div class="flex items-center justify-center gap-4 text-slate-400">
+                                <span><i class="fa-regular fa-clock mr-2"></i>30 minutes</span>
+                                <span class="text-purple-400">|</span>
+                                <span><i class="fa-solid fa-graduation-cap mr-2"></i>Module 4 of 8</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 max-w-2xl">
+                        <p class="text-lg text-slate-300 mb-3">Before next session, try this:</p>
+                        <p class="text-slate-400">Identify 3 documents you create repeatedly. Notice what stays the same (template) vs. what changes (content).</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        const channel = new BroadcastChannel('sync_module_3_ai-productivity');
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const slideCounter = document.getElementById('slideCounter');
+        const totalSlidesEl = document.getElementById('totalSlides');
+
+        totalSlidesEl.textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            slideCounter.textContent = index + 1;
+            currentSlide = index;
+        }
+
+        channel.onmessage = (e) => {
+            if (e.data.type === 'sync') {
+                showSlide(e.data.index);
+            } else if (e.data.type === 'open-tab-url') {
+                window.open(e.data.url, '_blank');
+            } else if (e.data.type === 'remoteTakeover') {
+                window.location.href = e.data.url;
+            }
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 0) showSlide(currentSlide - 1);
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

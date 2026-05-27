@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presenter View - MODULE_TITLE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ============================================
+           CANONICAL PRESENTER HTML BOILERPLATE
+           Source: plan/templates/presenter_boilerplate.html
+           Version: 1.0
+           ============================================ */
+
+        body { background-color: #0f172a; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .top-bar { background-color: #1e293b; border-bottom: 1px solid #334155; padding: 10px 15px; display: flex; flex-direction: column; gap: 10px; align-items: center; z-index: 10; }
+        .module-banner { background-color: #1e1e3a; width: 100%; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand { display: flex; align-items: center; width: 100%; justify-content: center; margin-bottom: 10px; }
+        .split-control { display: none; }
+        .controls { display: flex; gap: 10px; width: 100%; justify-content: center; align-items: center; }
+        @media (min-width: 1024px) {
+            .top-bar { flex-direction: row; padding: 15px 30px; gap: 0; }
+            .brand { width: auto; justify-content: flex-start; margin-bottom: 0; }
+            .split-control { display: flex; }
+            .controls { width: auto; }
+        }
+        @media (max-width: 767px) {
+            body { height: auto; min-height: 100vh; overflow-y: auto; }
+            .module-banner { height: auto; min-height: 50px; padding: 4px 10px; }
+            .module-banner .text-2xl { font-size: 1rem; }
+            .module-banner .text-xl { font-size: 0.75rem; }
+            .top-bar { height: auto; min-height: 50px; padding: 5px 10px; gap: 5px; }
+            .top-bar .brand span { font-size: 0.875rem; }
+            .top-bar .controls button { padding: 6px 12px; font-size: 0.75rem; }
+            .top-bar .status { padding: 4px 8px; font-size: 0.75rem; }
+            .split-control { display: none; }
+            .main-container { flex-direction: column; height: auto; min-height: 80vh; }
+            .preview-pane { height: 50px; min-height: 50px; padding: 4px; border-bottom: 1px solid #334155; flex: none; }
+            .preview-pane h2 { font-size: 0.625rem; margin-bottom: 2px; }
+            .preview-box { min-height: 40px; display: flex; align-items: center; justify-content: center; }
+            .preview-content-wrapper { width: 60px !important; height: 30px !important; transform: none !important; font-size: 6px !important; line-height: 1 !important; overflow: hidden; }
+            .notes-pane { flex: 1; height: auto; min-height: calc(100vh - 150px); padding: 10px; overflow-y: auto; }
+            .notes-pane h2 { font-size: 0.875rem; margin-bottom: 8px; }
+        }
+        .controls button { background-color: #6366f1; color: #fff; border: none; padding: 10px 24px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .controls button:hover { background-color: #4f46e5; }
+        .controls button:disabled { background-color: #334155; color: #64748b; cursor: not-allowed; }
+        .status { font-family: monospace; font-size: 16px; background: #000; padding: 8px 16px; border-radius: 6px; border: 1px solid #334155; white-space: nowrap; }
+        .main-container { display: flex; flex-direction: column; flex: 1; overflow-y: auto; }
+        .preview-pane { flex: none; height: 45%; min-height: 35vh; padding: 15px; border-bottom: 1px solid #334155; display: flex; flex-direction: column; background-color: #0a0a0a; }
+        .preview-box { flex: 1; background: #1e293b; border-radius: 8px; border: 2px solid #334155; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 200px; }
+        .preview-content-wrapper { width: 100%; height: 100%; transform-origin: center center; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .notes-pane { flex: 1; min-height: 35vh; padding: 20px; background-color: #1e293b; overflow-y: auto; }
+        .notes-pane h2 { margin-top: 0; color: #a78bfa; font-size: 18px; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 16px; font-weight: 600; }
+        .slide-cue-box { background: linear-gradient(135deg, #1e1e3a, #1e293b); border-left: 4px solid #a78bfa; padding: 12px 16px; margin-bottom: 16px; border-radius: 4px; }
+        .timing-box { background-color: #1a1a2e; border-left: 4px solid #818cf8; padding: 10px 16px; margin-bottom: 16px; border-radius: 4px; display: flex; align-items: center; gap: 10px; }
+        .timing-box .time-range { color: #c084fc; font-weight: 600; font-size: 15px; }
+        .script-section { margin-bottom: 16px; }
+        .script-header { display: flex; align-items: center; margin-bottom: 8px; }
+        .script-header i { color: #a78bfa; margin-right: 8px; }
+        .script-header span { color: #a78bfa; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .script-text { color: #e2e8f0; background: #0f172a; padding: 14px 16px; border-radius: 6px; line-height: 1.7; }
+        .script-text ul { margin: 0; padding-left: 20px; }
+        .script-text li { margin-bottom: 8px; }
+        .guidance-box { background: linear-gradient(135deg, #1e1e3a, #1e293b); border-left: 4px solid #f59e0b; padding: 14px 18px; margin-bottom: 16px; border-radius: 4px; }
+        .guidance-header { color: #f59e0b; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .guidance-box ul { margin: 0; padding-left: 20px; }
+        .guidance-box li { color: #e2e8f0; margin-bottom: 4px; }
+        .key-message-box { background: #1a1a2e; border-left: 4px solid #a78bfa; padding: 12px 16px; margin-bottom: 16px; border-radius: 4px; }
+        .key-message-header { display: flex; align-items: center; margin-bottom: 8px; color: #a78bfa; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .key-message-header i { margin-right: 8px; }
+        .key-message { color: #e2e8f0; font-weight: 500; }
+        .activity-box { background: #1a1a2e; border-left: 4px solid #a78bfa; padding: 10px 14px; margin-bottom: 12px; border-radius: 4px; color: #a78bfa; }
+        .trainer-notes-section { margin-top: 16px; }
+        .notes-header { display: flex; align-items: center; margin-bottom: 8px; color: #f59e0b; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .notes-header i { margin-right: 8px; }
+        .trainer-note { background: #2a1a00; border-left: 4px solid #f59e0b; padding: 12px 16px; margin-bottom: 6px; border-radius: 4px; color: #e2e8f0; font-size: 13px; line-height: 1.8; }
+        .trainer-note .script-heading { color: #a78bfa; font-weight: 700; margin-top: 12px; margin-bottom: 6px; }
+        .trainer-note .script-heading:first-child { margin-top: 0; }
+        .trainer-note ul { margin: 8px 0; padding-left: 20px; list-style-type: disc; }
+        .trainer-note ol { margin: 8px 0; padding-left: 20px; list-style-type: decimal; }
+        .trainer-note li { margin-bottom: 4px; }
+        .trainer-note p { margin: 8px 0; }
+        .gradient-text { background: linear-gradient(135deg, #a78bfa, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .expanded-tip { background: #1e1e2e; border-left: 4px solid #a78bfa; padding: 10px 14px; margin: 10px 0; border-radius: 4px; color: #c4b5fd; font-size: 13px; }
+        .expanded-tip strong { color: #a78bfa; }
+        .pause-emphasis { background: #2e1c1c; border-left: 4px solid #ef4444; padding: 10px 14px; margin: 10px 0; border-radius: 4px; color: #fca5a5; font-size: 13px; font-weight: 600; }
+        .pause-emphasis strong { color: #ef4444; }
+        .projection-btn { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; padding: 10px 16px; border-radius: 6px; border: 1px solid #818cf8; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease-in-out; margin: 8px 0; }
+        .projection-btn:hover { background: linear-gradient(135deg, #818cf8, #6366f1); transform: translateY(-1px); }
+        .reference-desk { background: linear-gradient(135deg, #1e1e3a, #0f172a); border: 1px solid #a78bfa; border-radius: 8px; margin-top: 20px; overflow: hidden; }
+        .reference-desk-header { background: #0f172a; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+        .reference-desk-header:hover { background: #1e293b; }
+        .reference-desk-title { display: flex; align-items: center; gap: 8px; color: #a78bfa; font-weight: 700; font-size: 14px; }
+        .reference-desk-title i { font-size: 16px; }
+        .reference-desk-toggle { color: #94a3b8; transition: transform 0.3s ease; }
+        .reference-desk-toggle.open { transform: rotate(180deg); }
+        .reference-desk-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: #0f172a; }
+        .reference-desk-content.open { max-height: 600px; overflow-y: auto; }
+        .reference-list { padding: 16px; list-style: none; margin: 0; }
+        .reference-list li { padding: 10px 0; border-bottom: 1px solid #334155; }
+        .reference-list li:last-child { border-bottom: none; }
+        .reference-item { font-size: 13px; line-height: 1.6; color: #e2e8f0; }
+        .reference-item .ref-number { color: #a78bfa; font-weight: 700; margin-right: 8px; }
+        .reference-link { color: #60a5fa; text-decoration: underline; cursor: pointer; transition: color 0.2s; }
+        .reference-link:hover { color: #93c5fd; }
+    </style>
+</head>
+<body>
+    <div class="module-banner">
+        <div class="flex items-center gap-4">
+            <span class="text-2xl font-bold">Module N</span>
+            <span class="text-purple-200">MODULE_TITLE</span>
+        </div>
+        <div class="text-xl font-mono bg-purple-800 px-4 py-1 rounded-lg">Slide <span id="bannerSlide">1</span> of <span id="bannerTotal">SLIDE_COUNT</span></div>
+    </div>
+    <div class="top-bar">
+        <div class="brand">
+            <i class="fa-solid fa-robot" style="color: #a78bfa; font-size: 20px; margin-right: 10px;"></i>
+            <span style="font-size: 18px; font-weight: bold;">Presenter View</span>
+        </div>
+        <div class="split-control" style="display: flex; align-items: center; gap: 10px; color: #94a3b8; font-size: 14px; background: #000; padding: 8px 16px; border-radius: 6px; border: 1px solid #334155;">
+            <label for="splitSlider"><i class="fa-solid fa-left-right text-purple-400"></i> Audience:</label>
+            <input type="range" id="splitSlider" min="10" max="90" value="50" step="5" style="cursor: pointer;">
+            <span id="splitValue">50%</span>
+        </div>
+        <div class="controls">
+            <button id="prevBtn"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+            <div class="status" id="slideCounter">Slide 1 / SLIDE_COUNT</div>
+            <button id="nextBtn">Next <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+    <div class="main-container" id="mainContainer">
+        <div class="preview-pane" id="previewPane">
+            <h2><span>Audience Preview</span></h2>
+            <div class="preview-box">
+                <div class="preview-content-wrapper text-slate-100" id="preview-content"></div>
+            </div>
+        </div>
+        <div class="notes-pane" id="notesPane">
+            <h2>Speaker Notes</h2>
+            <div id="slide-info"></div>
+            <div id="notes-content"></div>
+        </div>
+        <div class="reference-desk" id="referenceDesk">
+            <div class="reference-desk-header" onclick="toggleReferenceDesk()">
+                <div class="reference-desk-title">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>📚 Live Reference Desk & Citation Depth</span>
+                </div>
+                <div class="reference-desk-toggle" id="referenceToggle">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="reference-desk-content open" id="referenceContent">
+                <ul class="reference-list">
+                    <li>
+                        <div class="ref-item"><span class="ref-number">[0]</span>Reference Title <a href="javascript:void(0)" onclick="openReferenceInAudience('https://example.com')" class="reference-link">https://example.com</a></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        /* ============================================
+           CANONICAL BROADCASTCHANNEL SYNC
+           Channel: sync_module_{N}_{suffix}
+           ============================================ */
+        const channel = new BroadcastChannel('sync_module_N_SUFFIX');
+
+        function openReferenceInAudience(url) {
+            channel.postMessage({ type: 'open-tab-url', url: url });
+        }
+
+        function toggleReferenceDesk() {
+            const content = document.getElementById('referenceContent');
+            const toggle = document.getElementById('referenceToggle');
+            content.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        /* ============================================
+           CANONICAL COURSE DATA ARRAY
+           Replace this placeholder with actual course data
+           ============================================ */
+        const courseData = [
+            {
+                title: "Slide 1: TITLE",
+                content: `<div class="w-full flex flex-col items-center justify-center text-center">[VISUAL_HTML]</div>`,
+                notes: `<div class="slide-cue-box">...</div><div class="timing-box">...</div><div class="key-message-box">...</div><div class="trainer-notes-section"><div class="notes-header">...</div><div class="trainer-note">...</div></div>`
+            }
+            /* ... more slides ... */
+        ];
+
+        /* ============================================
+           CANONICAL SLIDE NAVIGATION
+           ============================================ */
+        let currentSlide = 0;
+        const totalSlides = courseData.length;
+
+        function updateSlide() {
+            const slide = courseData[currentSlide];
+            document.getElementById('slide-info').innerHTML = `<h3 class="text-purple-300 font-bold text-lg mb-4">${slide.title}</h3>`;
+            document.getElementById('notes-content').innerHTML = slide.notes;
+            document.getElementById('slideCounter').textContent = `Slide ${currentSlide + 1} / ${totalSlides}`;
+            document.getElementById('bannerSlide').textContent = currentSlide + 1;
+            document.getElementById('bannerTotal').textContent = totalSlides;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+
+            const previewContent = document.getElementById('preview-content');
+            previewContent.innerHTML = slide.content;
+            previewContent.style.fontSize = '12px';
+            previewContent.style.lineHeight = '1.4';
+
+            const aspectRatio = 16 / 9;
+            const containerWidth = previewContent.parentElement.clientWidth;
+            const containerHeight = previewContent.parentElement.clientHeight;
+
+            let scale = 1;
+            if (containerWidth && containerHeight) {
+                const scaleX = containerWidth / 1600;
+                const scaleY = containerHeight / (1600 / aspectRatio);
+                scale = Math.min(scaleX, scaleY, 1);
+            }
+
+            previewContent.style.transform = `scale(${scale})`;
+            previewContent.style.width = '1600px';
+            previewContent.style.height = `${1600 / aspectRatio}px`;
+            previewContent.style.maxWidth = 'none';
+
+            channel.postMessage({ type: 'sync', index: currentSlide });
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) { currentSlide--; updateSlide(); }
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', nextSlide);
+        document.getElementById('prevBtn').addEventListener('click', prevSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+        });
+
+        /* Split slider */
+        const splitSlider = document.getElementById('splitSlider');
+        const splitValue = document.getElementById('splitValue');
+        splitSlider.addEventListener('input', () => {
+            const val = splitSlider.value;
+            splitValue.textContent = val + '%';
+            document.getElementById('previewPane').style.height = val + '%';
+            document.getElementById('notesPane').style.flex = '1';
+        });
+
+        window.addEventListener('resize', updateSlide);
+        updateSlide();
+    </script>
+</body>
+</html>

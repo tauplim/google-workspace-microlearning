@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presenter View - Module 2: Collaboration with AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .top-bar { background-color: #1e293b; border-bottom: 1px solid #334155; padding: 10px 15px; display: flex; flex-direction: column; gap: 10px; align-items: center; z-index: 10; }
+        .module-banner { background-color: #1e1e3a; width: 100%; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand { display: flex; align-items: center; width: 100%; justify-content: center; margin-bottom: 10px; }
+        .split-control { display: none; }
+        .controls { display: flex; gap: 10px; width: 100%; justify-content: center; align-items: center; }
+        @media (min-width: 1024px) {
+            .top-bar { flex-direction: row; padding: 15px 30px; gap: 0; }
+            .brand { width: auto; justify-content: flex-start; margin-bottom: 0; }
+            .split-control { display: flex; }
+            .controls { width: auto; }
+        }
+        @media (max-width: 767px) {
+            body { height: auto; min-height: 100vh; overflow-y: auto; }
+            .main-container { flex-direction: column; height: auto; min-height: 80vh; }
+            .preview-pane { height: 50px; min-height: 50px; padding: 4px; border-bottom: 1px solid #334155; flex: none; }
+            .notes-pane { flex: 1; height: auto; min-height: calc(100vh - 150px); padding: 10px; overflow-y: auto; }
+        }
+        .controls button { background-color: #6366f1; color: #fff; border: none; padding: 10px 24px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .controls button:hover { background-color: #4f46e5; }
+        .controls button:disabled { background-color: #334155; color: #64748b; cursor: not-allowed; }
+        .status { font-family: monospace; font-size: 16px; background: #000; padding: 8px 16px; border-radius: 6px; border: 1px solid #334155; white-space: nowrap; }
+        .main-container { display: flex; flex-direction: column; flex: 1; overflow-y: auto; }
+        .preview-pane { flex: none; height: 45%; min-height: 35vh; padding: 15px; border-bottom: 1px solid #334155; display: flex; flex-direction: column; background-color: #0a0a0a; }
+        .preview-box { flex: 1; background: #1e293b; border-radius: 8px; border: 2px solid #334155; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 200px; }
+        .preview-content-wrapper { width: 100%; height: 100%; transform-origin: center center; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .notes-pane { flex: 1; min-height: 35vh; padding: 20px; background-color: #1e293b; overflow-y: auto; }
+        .notes-pane h2 { margin-top: 0; color: #a78bfa; font-size: 18px; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 16px; font-weight: 600; }
+        .slide-cue-box { background: linear-gradient(135deg, #1e1e3a, #1e293b); border-left: 4px solid #a78bfa; padding: 12px 16px; margin-bottom: 16px; border-radius: 4px; }
+        .timing-box { background-color: #1a1a2e; border-left: 4px solid #818cf8; padding: 10px 16px; margin-bottom: 16px; border-radius: 4px; display: flex; align-items: center; gap: 10px; }
+        .timing-box .time-range { color: #c084fc; font-weight: 600; font-size: 15px; }
+        .script-text { color: #e2e8f0; background: #0f172a; padding: 14px 16px; border-radius: 6px; line-height: 1.7; }
+        .script-text ul { margin: 0; padding-left: 20px; }
+        .script-text li { margin-bottom: 8px; }
+        .guidance-box { background: linear-gradient(135deg, #1e1e3a, #1e293b); border-left: 4px solid #f59e0b; padding: 14px 18px; margin-bottom: 16px; border-radius: 4px; }
+        .guidance-header { color: #f59e0b; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .guidance-box ul { margin: 0; padding-left: 20px; }
+        .guidance-box li { color: #e2e8f0; margin-bottom: 4px; }
+        .key-message-box { background: #1a1a2e; border-left: 4px solid #a78bfa; padding: 12px 16px; margin-bottom: 16px; border-radius: 4px; }
+        .key-message-header { display: flex; align-items: center; margin-bottom: 8px; color: #a78bfa; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .key-message-header i { margin-right: 8px; }
+        .key-message { color: #e2e8f0; font-weight: 500; }
+        .trainer-notes-section { margin-top: 16px; }
+        .notes-header { display: flex; align-items: center; margin-bottom: 8px; color: #f59e0b; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .notes-header i { margin-right: 8px; }
+        .trainer-note { background: #2a1a00; border-left: 4px solid #f59e0b; padding: 12px 16px; margin-bottom: 6px; border-radius: 4px; color: #e2e8f0; font-size: 13px; line-height: 1.8; }
+        .trainer-note .script-heading { color: #a78bfa; font-weight: 700; margin-top: 12px; margin-bottom: 6px; }
+        .trainer-note .script-heading:first-child { margin-top: 0; }
+        .trainer-note ul { margin: 8px 0; padding-left: 20px; list-style-type: disc; }
+        .trainer-note ol { margin: 8px 0; padding-left: 20px; list-style-type: decimal; }
+        .trainer-note li { margin-bottom: 4px; }
+        .trainer-note p { margin: 8px 0; }
+        .gradient-text { background: linear-gradient(135deg, #a78bfa, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .reference-desk { background: linear-gradient(135deg, #1e1e3a, #0f172a); border: 1px solid #a78bfa; border-radius: 8px; margin-top: 20px; overflow: hidden; }
+        .reference-desk-header { background: #0f172a; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+        .reference-desk-header:hover { background: #1e293b; }
+        .reference-desk-title { display: flex; align-items: center; gap: 8px; color: #a78bfa; font-weight: 700; font-size: 14px; }
+        .reference-desk-toggle { color: #94a3b8; transition: transform 0.3s ease; }
+        .reference-desk-toggle.open { transform: rotate(180deg); }
+        .reference-desk-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: #0f172a; }
+        .reference-desk-content.open { max-height: 600px; overflow-y: auto; }
+        .reference-list { padding: 16px; list-style: none; margin: 0; }
+        .reference-list li { padding: 10px 0; border-bottom: 1px solid #334155; }
+        .reference-item { font-size: 13px; line-height: 1.6; color: #e2e8f0; }
+        .reference-item .ref-number { color: #a78bfa; font-weight: 700; margin-right: 8px; }
+        .reference-link { color: #60a5fa; text-decoration: underline; cursor: pointer; transition: color 0.2s; }
+        .reference-link:hover { color: #93c5fd; }
+    </style>
+</head>
+<body>
+    <div class="module-banner">
+        <div class="flex items-center gap-4">
+            <span class="text-2xl font-bold">Module 2</span>
+            <span class="text-purple-200">Collaboration with AI</span>
+        </div>
+        <div class="text-xl font-mono bg-purple-800 px-4 py-1 rounded-lg">Slide <span id="bannerSlide">1</span> of <span id="bannerTotal">16</span></div>
+    </div>
+    <div class="top-bar">
+        <div class="brand">
+            <i class="fa-solid fa-robot" style="color: #a78bfa; font-size: 20px; margin-right: 10px;"></i>
+            <span style="font-size: 18px; font-weight: bold;">Presenter View</span>
+        </div>
+        <div class="split-control" style="display: flex; align-items: center; gap: 10px; color: #94a3b8; font-size: 14px; background: #000; padding: 8px 16px; border-radius: 6px; border: 1px solid #334155;">
+            <label for="splitSlider"><i class="fa-solid fa-left-right text-purple-400"></i> Audience:</label>
+            <input type="range" id="splitSlider" min="10" max="90" value="50" step="5" style="cursor: pointer;">
+            <span id="splitValue">50%</span>
+        </div>
+        <div class="controls">
+            <button id="prevBtn"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+            <div class="status" id="slideCounter">Slide 1 / 16</div>
+            <button id="nextBtn">Next <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+    <div class="main-container" id="mainContainer">
+        <div class="preview-pane" id="previewPane">
+            <h2><span>Audience Preview</span></h2>
+            <div class="preview-box">
+                <div class="preview-content-wrapper text-slate-100" id="preview-content"></div>
+            </div>
+        </div>
+        <div class="notes-pane" id="notesPane">
+            <h2>Speaker Notes</h2>
+            <div id="slide-info"></div>
+            <div id="notes-content"></div>
+        </div>
+        <div class="reference-desk" id="referenceDesk">
+            <div class="reference-desk-header" onclick="toggleReferenceDesk()">
+                <div class="reference-desk-title">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Reference Desk</span>
+                </div>
+                <div class="reference-desk-toggle" id="referenceToggle">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="reference-desk-content open" id="referenceContent">
+                <ul class="reference-list">
+                    <li>
+                        <div class="ref-item"><span class="ref-number">[1]</span>Google Docs Collaboration <a href="javascript:void(0)" onclick="openReferenceInAudience('https://support.google.com/docs/answer/9060449')" class="reference-link">Collaboration Features Guide</a></div>
+                    </li>
+                    <li>
+                        <div class="ref-item"><span class="ref-number">[2]</span>Suggesting Mode <a href="javascript:void(0)" onclick="openReferenceInAudience('https://support.google.com/docs/answer/11155622')" class="reference-link">How to Use Suggesting</a></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        const channel = new BroadcastChannel('sync_module_2_ai-productivity');
+
+        function openReferenceInAudience(url) {
+            channel.postMessage({ type: 'open-tab-url', url: url });
+        }
+
+        function toggleReferenceDesk() {
+            const content = document.getElementById('referenceContent');
+            const toggle = document.getElementById('referenceToggle');
+            content.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        const courseData = [
+            {
+                title: "Slide 1: Title - Module 2: Collaboration with AI",
+                content: `<div class="w-full flex flex-col items-center justify-center text-center"><div class="mb-6 px-4 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-semibold border border-purple-500/30">MODULE 2</div><h1 class="text-5xl md:text-7xl font-extrabold mb-6">Collaboration with AI</h1><p class="text-2xl md:text-3xl text-slate-400 mb-8">Real-Time Co-Authoring and Feedback</p><div class="flex items-center gap-4 text-slate-500 text-lg"><span><i class="fa-regular fa-clock mr-2"></i>30 min</span><span class="text-purple-400">|</span><span><i class="fa-solid fa-graduation-cap mr-2"></i>Module 2 of 8</span></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 1]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:00 - 0:03</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">Welcome back. Today we build on Module 1 by adding collaboration features with AI assistance.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Opening (0:00-0:03):</p><p>Welcome to Module 2: Collaboration with AI.</p><p>Last module we learned to use Gemini individually. Today we learn how AI helps us work BETTER with colleagues - co-authoring documents, generating thoughtful feedback, and knowing when AI helps vs. when we need human judgment.</p><p>This is where Google Workspace really shines - real-time collaboration with AI assistance built in.</p></div></div>`
+            },
+            {
+                title: "Slide 2: Learning Objectives",
+                content: `<div class="w-full flex flex-col items-center justify-center max-w-4xl"><h2 class="text-4xl font-bold mb-8 gradient-text">Learning Objectives</h2><div class="space-y-5 w-full"><div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">1</span></div><p class="text-xl font-semibold text-white">Share a document with editing permissions and co-author in real-time</p></div><div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">2</span></div><p class="text-xl font-semibold text-white">Switch between Editing and Suggesting modes</p></div><div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">3</span></div><p class="text-xl font-semibold text-white">Use AI to generate, respond to, or resolve comments</p></div><div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">4</span></div><p class="text-xl font-semibold text-white">Identify when AI assistance enhances vs. replaces human judgment</p></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 2]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:03 - 0:05</span></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Review Objectives (0:03-0:05):</p><p>By the end of this session, you will be able to:</p><ol><li>Share documents and co-author in real-time - this is fundamental to modern collaboration</li><li>Switch between Editing and Suggesting modes - key for collaborative workflows</li><li>Use AI to generate, respond to, and resolve comments - the main AI collaboration features</li><li>Know when AI helps vs. when human judgment is needed - this is the critical thinking piece</li></ol></div></div>`
+            },
+            {
+                title: "Slide 3: Session Overview",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Session Overview</h2><div class="w-full max-w-4xl"><div class="grid grid-cols-3 gap-4 mb-6"><div class="bg-blue-600/20 p-4 rounded-xl border-l-4 border-blue-400 text-center"><div class="text-3xl font-bold text-blue-400 mb-2">12</div><div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div><div class="text-lg font-semibold mt-2 text-blue-300">LEARN</div></div><div class="bg-emerald-600/20 p-4 rounded-xl border-l-4 border-emerald-400 text-center"><div class="text-3xl font-bold text-emerald-400 mb-2">18</div><div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div><div class="text-lg font-semibold mt-2 text-emerald-300">CONSOLIDATE</div></div><div class="bg-purple-600/20 p-4 rounded-xl border-l-4 border-purple-400 text-center"><div class="text-3xl font-bold text-purple-400 mb-2">2</div><div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div><div class="text-lg font-semibold mt-2 text-purple-300">COMPRESS</div></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 3]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:05 - 0:07</span></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>Quick overview of session structure</li><li>Note the 40:60 split - more workshop time</li><li>Point out they'll co-author real documents in this session</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Session Structure (0:05-0:07):</p><p>Here's how our 30 minutes breaks down:</p><ul><li><strong>Learn (12 min):</strong> Collaboration fundamentals and AI commenting features</li><li><strong>Consolidate (18 min):</strong> Co-author a document with your neighbor using AI</li><li><strong>Compress (2 min):</strong> Take away your AI Collaboration Checklist</li></ul></div></div>`
+            },
+            {
+                title: "Slide 4: The Shift in Collaboration",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">The Shift in Collaboration</h2><div class="w-full max-w-5xl"><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700"><div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center"><i class="fa-solid fa-clock text-red-400"></i></div><h3 class="font-bold text-xl text-red-400">Traditional Workflow</h3></div><div class="space-y-2 text-slate-400 text-sm"><p>You → Create document</p><p>↓</p><p>Attach to email → Send</p><p>↓</p><p>Wait for response...</p></div></div><div class="bg-emerald-900/20 p-6 rounded-xl border border-emerald-500/30"><div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><i class="fa-solid fa-bolt text-emerald-400"></i></div><h3 class="font-bold text-xl text-emerald-400">Modern Workflow</h3></div><div class="space-y-2 text-emerald-400 text-sm"><p>Create → Share link</p><p>↓</p><p>Colleagues edit simultaneously</p><p>↓</p><p>AI assists → Done!</p></div></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 4]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:07 - 0:10</span></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">The Shift (0:07-0:10):</p><p>Let's talk about HOW we collaborate has changed:</p><ul><li><strong>Traditional:</strong> Create → Email attachment → Wait → Incorporate changes → Repeat. This takes DAYS.</li><li><strong>Modern:</strong> Create → Share link → Everyone edits simultaneously → AI helps with feedback → Done. This takes MINUTES.</li></ul><p>The shift is from "send and wait" to "share and collaborate." Google Docs makes this possible, and AI makes the feedback part faster.</p></div></div>`
+            },
+            {
+                title: "Slide 5: Key Collaboration Features",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Key Collaboration Features</h2><div class="w-full max-w-5xl"><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4"><i class="fa-solid fa-users text-blue-400 text-xl"></i></div><h3 class="font-bold text-lg mb-2">Real-Time Cursors</h3><p class="text-sm text-slate-400">See where others are working instantly</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4"><i class="fa-solid fa-pen-fancy text-purple-400 text-xl"></i></div><h3 class="font-bold text-lg mb-2">Suggesting Mode</h3><p class="text-sm text-slate-400">Track changes without overwriting</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center mb-4"><i class="fa-solid fa-comment text-yellow-400 text-xl"></i></div><h3 class="font-bold text-lg mb-2">Comments</h3><p class="text-sm text-slate-400">Feedback without changing text</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-12 h-12 rounded-xl bg-teal-500/20 flex items-center justify-center mb-4"><i class="fa-solid fa-bookmark text-teal-400 text-xl"></i></div><h3 class="font-bold text-lg mb-2">Named Locations</h3><p class="text-sm text-slate-400">Jump to specific sections</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700"><div class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center mb-4"><i class="fa-solid fa-history text-red-400 text-xl"></i></div><h3 class="font-bold text-lg mb-2">Version History</h3><p class="text-sm text-slate-400">See all changes over time</p></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 5]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:10 - 0:12</span></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Collaboration Features (0:10-0:12):</p><p>The five key features that make Google Docs collaboration powerful:</p><ol><li><strong>Real-time cursors:</strong> See exactly where others are working - no more "I was editing that!"</li><li><strong>Suggesting mode:</strong> Propose changes without overwriting - the owner decides what to accept</li><li><strong>Comments:</strong> Feedback that doesn't change the text - for questions and discussions</li><li><strong>Named locations:</strong> Jump to specific sections - helpful in long documents</li><li><strong>Version history:</strong> See every change, who made it, and when - restore if needed</li></ol></div></div>`
+            },
+            {
+                title: "Slide 6: Editing vs. Suggesting Modes",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Editing vs. Suggesting Modes</h2><div class="w-full max-w-4xl"><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-blue-900/20 p-6 rounded-xl border-2 border-blue-500/50"><h3 class="font-bold text-2xl text-blue-400 mb-2">Editing Mode</h3><p class="text-slate-300 mb-4">Direct changes (no tracking)</p><p class="text-sm text-slate-400">Use when: You own the document, making minor edits, working alone</p></div><div class="bg-purple-900/20 p-6 rounded-xl border-2 border-purple-500/50"><h3 class="font-bold text-2xl text-purple-400 mb-2">Suggesting Mode</h3><p class="text-slate-300 mb-4">Proposed changes (tracked)</p><p class="text-sm text-slate-400">Use when: Reviewing others' work, suggesting improvements, collaborative editing</p></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 6]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:12 - 0:14</span></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Editing vs. Suggesting (0:12-0:14):</p><p>The critical distinction:</p><ul><li><strong>Editing Mode:</strong> Your changes are direct. Use when you OWN the document or it's a minor edit. No tracking.</li><li><strong>Suggesting Mode:</strong> Your changes appear as green suggestions. The owner reviews and accepts/rejects. Use when reviewing others' work.</li></ul><p>Pro tip: If you're not sure, use Suggesting. It's more polite and keeps the document owner in control.</p></div></div>`
+            },
+            {
+                title: "Slide 7: Four Ways AI Enhances Collaboration",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Four Ways AI Enhances Collaboration</h2><div class="w-full max-w-5xl"><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-gradient-to-br from-blue-600/20 to-slate-800/50 p-6 rounded-xl border border-blue-500/30"><h3 class="font-bold text-xl text-blue-400 mb-2">1. Generate Comments</h3><p class="text-slate-300">AI suggests feedback where you might miss issues</p></div><div class="bg-gradient-to-br from-purple-600/20 to-slate-800/50 p-6 rounded-xl border border-purple-500/30"><h3 class="font-bold text-xl text-purple-400 mb-2">2. Reply to Comments</h3><p class="text-slate-300">AI helps craft diplomatic, thoughtful responses</p></div><div class="bg-gradient-to-br from-emerald-600/20 to-slate-800/50 p-6 rounded-xl border border-emerald-500/30"><h3 class="font-bold text-xl text-emerald-400 mb-2">3. Resolve Threads</h3><p class="text-slate-300">AI identifies when discussions are complete</p></div><div class="bg-gradient-to-br from-yellow-600/20 to-slate-800/50 p-6 rounded-xl border border-yellow-500/30"><h3 class="font-bold text-xl text-yellow-400 mb-2">4. Summarize Activity</h3><p class="text-slate-300">AI shows what changed and who did what</p></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 7]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:14 - 0:16</span></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">AI in Collaboration (0:14-0:16):</p><p>AI supercharges collaboration in four ways:</p><ol><li><strong>Generate Comments:</strong> Highlight text, click comment, and Gemini can suggest what feedback to give. Great when you're not sure what to say.</li><li><strong>Reply to Comments:</strong> Struggling to find the right words? Gemini helps craft diplomatic responses.</li><li><strong>Resolve Threads:</strong> When a discussion is done, AI can help identify which threads are resolved.</li><li><strong>Summarize Activity:</strong> In long documents with many edits, AI summarizes what's changed and who did it.</li></ol></div></div>`
+            },
+            {
+                title: "Slide 8: When AI Helps vs. Human Judgment",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">When AI Helps vs. Human Judgment</h2><div class="w-full max-w-5xl"><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="bg-emerald-900/20 p-6 rounded-xl border border-emerald-500/30"><h3 class="font-bold text-2xl text-emerald-400 mb-4">AI Helps With</h3><ul class="space-y-3 text-slate-300"><li><i class="fa-solid fa-check-circle text-emerald-400 mr-2"></i>Grammar and clarity suggestions</li><li><i class="fa-solid fa-check-circle text-emerald-400 mr-2"></i>Fact-checking claims</li><li><i class="fa-solid fa-check-circle text-emerald-400 mr-2"></i>Summarizing long threads</li><li><i class="fa-solid fa-check-circle text-emerald-400 mr-2"></i>Flagging inconsistencies</li></ul></div><div class="bg-red-900/20 p-6 rounded-xl border border-red-500/30"><h3 class="font-bold text-2xl text-red-400 mb-4">Use Human Judgment</h3><ul class="space-y-3 text-slate-300"><li><i class="fa-solid fa-times-circle text-red-400 mr-2"></i>Tone and sensitivity</li><li><i class="fa-solid fa-times-circle text-red-400 mr-2"></i>Strategic decisions</li><li><i class="fa-solid fa-times-circle text-red-400 mr-2"></i>Relationship nuance</li><li><i class="fa-solid fa-times-circle text-red-400 mr-2"></i>Creative direction</li></ul></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 8]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:16 - 0:19</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">This is the critical thinking piece - AI assists but doesn't replace human judgment on sensitive matters.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">When to Use What (0:16-0:19):</p><p>AI is powerful but not omniscient. Know when to rely on it:</p><p><strong>AI Helps With:</strong></p><ul><li>Grammar, spelling, clarity - it's very good at this</li><li>Fact-checking - can verify claims quickly</li><li>Summarizing - condensing long discussions</li><li>Inconsistencies - spotting contradictions</li></ul><p><strong>Human Judgment For:</strong></p><ul><li>Tone and sensitivity - will this offend someone?</li><li>Strategic decisions - what's the right direction?</li><li>Relationships - how will this person feel?</li><li>Creative vision - what's the best approach?</li></ul></div></div>`
+            },
+            {
+                title: "Slide 9: Live Demonstration",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Live Demonstration</h2><div class="w-full max-w-5xl"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700"><h3 class="font-bold text-lg mb-3"><span class="text-blue-400 mr-2">1</span>Sharing for Collaboration</h3><p class="text-sm text-slate-400">Create → Share → Anyone with link can edit</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700"><h3 class="font-bold text-lg mb-3"><span class="text-purple-400 mr-2">2</span>Switch to Suggesting Mode</h3><p class="text-sm text-slate-400">Dropdown in toolbar → Select "Suggesting"</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700"><h3 class="font-bold text-lg mb-3"><span class="text-yellow-400 mr-2">3</span>Add AI-Generated Comment</h3><p class="text-sm text-slate-400">Highlight → Comment → Gemini → Prompt</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700"><h3 class="font-bold text-lg mb-3"><span class="text-emerald-400 mr-2">4</span>Respond & Resolve</h3><p class="text-sm text-slate-400">Reply with AI → Resolve thread when done</p></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 9]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:19 - 0:23</span></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>Demo all 4 actions LIVE if possible</li><li>Think-aloud as you perform each step</li><li>If environment isn't ready, use screenshots</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Demo (0:19-0:23):</p><p>Watch me perform all four collaboration actions:</p><ol><li><strong>Sharing:</strong> Create doc → Share button → "Anyone with link can edit" → Copy link</li><li><strong>Suggesting:</strong> Click the dropdown next to "Editing" in toolbar → Select "Suggesting" → Type something (appears green)</li><li><strong>AI Comment:</strong> Highlight text → Comment icon → Click Gemini → "Suggest a constructive improvement"</li><li><strong>Respond & Resolve:</strong> Reply to a comment using AI → Click Resolve when discussion is done</li></ol><p>Questions? Now it's YOUR turn.</p></div></div>`
+            },
+            {
+                title: "Slide 10: Workshop Task 1",
+                content: `<div class="w-full flex flex-col items-center justify-center"><div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div><h2 class="text-4xl font-bold mb-4">Task 1: Set Up Shared Document</h2><p class="text-xl text-slate-400 mb-8">Time: 2 minutes</p><div class="w-full max-w-3xl"><div class="bg-slate-800/50 p-6 rounded-xl border border-emerald-500/30"><ol class="space-y-4"><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">1</span></div><p class="text-lg text-slate-200">Create new Google Doc titled: "Module 2 Workshop - [Your Name]"</p></li><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">2</span></div><p class="text-lg text-slate-200">Click Share → Select "Anyone with the link can edit"</p></li><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">3</span></div><p class="text-lg text-slate-200">Copy the link and send it to your neighbor</p></li></ol></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 10]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:23 - 0:25</span></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>2 minutes only - this is setup</li><li>Make sure everyone has a shared document before proceeding</li><li>If someone doesn't have a neighbor, create a group of 3</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Task 1 Instructions (0:23-0:25):</p><p>"You have 2 minutes to set up your shared document."</p><ol><li>Create new Google Doc, title it "Module 2 Workshop - [Your Name]"</li><li>Click Share button</li><li>Select "Anyone with the link can edit"</li><li>Copy the link</li><li>Send it to your neighbor via chat or email</li></ol><p>Call time at 2 minutes.</p></div></div>`
+            },
+            {
+                title: "Slide 11: Workshop Task 2",
+                content: `<div class="w-full flex flex-col items-center justify-center"><div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div><h2 class="text-4xl font-bold mb-4">Task 2: Practice Suggesting Mode</h2><p class="text-xl text-slate-400 mb-8">Time: 3 minutes</p><div class="w-full max-w-3xl"><div class="bg-slate-800/50 p-6 rounded-xl border border-emerald-500/30"><ol class="space-y-4"><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">1</span></div><p class="text-lg text-slate-200">Switch to <span class="text-purple-400">Suggesting mode</span> (dropdown in toolbar)</p></li><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">2</span></div><p class="text-lg text-slate-200">Go to your neighbor's shared document</p></li><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">3</span></div><p class="text-lg text-slate-200">Add a suggestion to improve one sentence (appears in green)</p></li><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">4</span></div><p class="text-lg text-slate-200">Accept or reject your neighbor's suggestion</p></li></ol></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 11]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:25 - 0:28</span></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>3 minutes for this task</li><li>Circulate and help anyone stuck on Suggesting mode</li><li>Make sure both partners have made suggestions</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Task 2 Instructions (0:25-0:28):</p><p>"Now practice Suggesting mode - 3 minutes."</p><ol><li>Switch to Suggesting mode via the dropdown in the toolbar (shows "Editing" by default)</li><li>Go to your neighbor's shared document you just received</li><li>In their document, add a suggestion to improve ONE sentence (appears in green)</li><li>Back in your own document, accept or reject your neighbor's suggestion</li></ol><p>Call time at 3 minutes.</p></div></div>`
+            },
+            {
+                title: "Slide 12: Workshop Task 3",
+                content: `<div class="w-full flex flex-col items-center justify-center"><div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div><h2 class="text-4xl font-bold mb-4">Task 3: AI-Enhanced Comments</h2><p class="text-xl text-slate-400 mb-8">Time: 5 minutes</p><div class="w-full max-w-3xl"><div class="bg-slate-800/50 p-6 rounded-xl border border-emerald-500/30 mb-6"><ol class="space-y-4"><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">1</span></div><p class="text-lg text-slate-200">Highlight a paragraph in your document</p></li><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">2</span></div><p class="text-lg text-slate-200">Click Comment icon → Gemini sparkle</p></li><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">3</span></div><p class="text-lg text-slate-200">Try: "Suggest improvement" / "Summarize" / "Identify unclear"</p></li><li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">4</span></div><p class="text-lg text-slate-200">Reply using AI, then Resolve the thread</p></li></ol></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 12]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:28 - 0:33</span></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>This is the main workshop task - 5 minutes</li><li>Make sure everyone uses AI for at least one comment</li><li>Circulate and help those who are stuck</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Task 3 Instructions (0:28-0:33):</p><p>"The key task - AI-enhanced comments. 5 minutes."</p><ol><li>In YOUR document, highlight a paragraph</li><li>Click the Comment icon (not suggesting), then click the Gemini sparkle</li><li>Try one of these prompts:<br>- "Suggest a constructive improvement for this paragraph"<br>- "Summarize this section in one sentence"<br>- "Identify any unclear statements"</li><li>Use AI to help you reply to a comment</li><li>Resolve the comment thread when the discussion is done</li></ol><p>Record your work in the workbook. Call time at 5 minutes.</p></div></div>`
+            },
+            {
+                title: "Slide 13: Pair Exercise",
+                content: `<div class="w-full flex flex-col items-center justify-center"><div class="mb-4 px-4 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-semibold border border-purple-500/30">PAIR EXERCISE</div><h2 class="text-4xl font-bold mb-8">Peer Review with AI</h2><div class="w-full max-w-3xl"><div class="space-y-4 mb-8"><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">A</span></div><p class="text-lg text-slate-200 font-semibold">Partner A: Share a short paragraph (3-4 sentences)</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">B</span></div><p class="text-lg text-slate-200 font-semibold">Partner B: Use AI to generate 2 improvement suggestions</p></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">C</span></div><p class="text-lg text-slate-200 font-semibold">Partner B: Reply using AI assistance</p></div></div><div class="bg-purple-900/20 p-5 rounded-xl border border-purple-500/30"><p class="text-purple-300 font-semibold mb-2">Discussion:</p><p class="text-slate-400">When did AI comments feel helpful? When did they feel robotic or inappropriate?</p></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 13]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:33 - 0:36</span></div><div class="guidance-box"><div class="guidance-header"><i class="fa-solid fa-lightbulb"></i>TRAINER GUIDANCE</div><ul><li>3 minutes for pair exercise</li><li>Have partners switch roles if time allows</li><li>Bring group back for discussion</li></ul></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Pair Exercise (0:33-0:36):</p><p>"Turn to your partner. 3 minutes."</p><ol><li>Partner A: Share a short paragraph from your work (3-4 sentences)</li><li>Partner B: Use AI to generate 2 improvement suggestions</li><li>Partner B: Reply using AI assistance</li><li>Both discuss: "When did AI feel helpful? When did it feel robotic?"</li></ol><p>If time allows, switch roles and repeat.</p></div></div>`
+            },
+            {
+                title: "Slide 14: Pattern Recap",
+                content: `<div class="w-full flex flex-col items-center justify-center text-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Pattern Recap</h2><div class="max-w-3xl"><div class="bg-gradient-to-br from-purple-900/30 to-slate-900/50 p-8 rounded-2xl border border-purple-500/30 mb-8"><p class="text-2xl md:text-3xl font-medium text-white leading-relaxed">"AI makes collaboration faster but <span class="text-red-400 font-bold">judgment still matters</span>. Use AI for <span class="text-emerald-400 font-bold">generating options</span>, not <span class="text-yellow-400 font-bold">making decisions</span>."</p></div><div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700"><h3 class="font-bold text-lg mb-4 text-purple-400">The AI Collaboration Decision Tree:</h3><div class="text-left space-y-3 text-slate-300"><p><span class="text-blue-400 font-semibold">Is the comment about grammar/clarity?</span> → AI can likely help</p><p><span class="text-blue-400 font-semibold">Is the decision strategic or relational?</span> → Use human judgment</p></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 14]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:36 - 0:38</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">The ONE thing to remember: AI generates options, humans make decisions.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Pattern Recap (0:36-0:38):</p><p>"Let's compress what we've learned."</p><p>Read the quote on screen:</p><p><em>"AI makes collaboration faster but judgment still matters. Use AI for generating options, not making decisions."</em></p><p>The decision tree:</p><ul><li>Is it about grammar/clarity? → AI can help</li><li>Is it about tone/strategy/relationships? → Use human judgment</li></ul></div></div>`
+            },
+            {
+                title: "Slide 15: Take-Away - AI Collaboration Checklist",
+                content: `<div class="w-full flex flex-col items-center justify-center"><h2 class="text-4xl font-bold mb-6 gradient-text">Take-Away: AI Collaboration Checklist</h2><div class="w-full max-w-3xl"><div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden"><div class="bg-gradient-to-r from-purple-600 to-blue-600 p-4 text-center"><h3 class="text-xl font-bold">AI COLLABORATION CHECKLIST</h3></div><div class="p-6 space-y-4"><div class="border-b border-slate-700 pb-3"><p class="text-purple-400 font-semibold mb-2">PRE-WORK:</p><ul class="text-slate-300 space-y-1 text-sm"><li><i class="fa-regular fa-square text-slate-500 mr-2"></i>Enable Suggesting mode for collaborative drafting</li><li><i class="fa-regular fa-square text-slate-500 mr-2"></i>Share with "Anyone can edit" for team documents</li><li><i class="fa-regular fa-square text-slate-500 mr-2"></i>Add AI comment: "What should I improve here?"</li></ul></div><div class="border-b border-slate-700 pb-3"><p class="text-emerald-400 font-semibold mb-2">DURING COLLABORATION:</p><ul class="text-slate-300 space-y-1 text-sm"><li><i class="fa-regular fa-square text-slate-500 mr-2"></i>Use AI to generate reply when unsure of tone</li><li><i class="fa-regular fa-square text-slate-500 mr-2"></i>Ask AI: "Is this comment clear and constructive?"</li><li><i class="fa-regular fa-square text-slate-500 mr-2"></i>Use AI to summarize unresolved comment threads</li></ul></div><div><p class="text-yellow-400 font-semibold mb-2">WRAP-UP:</p><ul class="text-slate-300 space-y-1 text-sm"><li><i class="fa-regular fa-square text-slate-500 mr-2"></i>Resolve completed comment threads</li><li><i class="fa-regular fa-square text-slate-500 mr-2"></i>Use AI: "Summarize all remaining feedback"</li><li><i class="fa-regular fa-square text-slate-500 mr-2"></i>Check version history for any lost content</li></ul></div></div></div></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 15]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:38 - 0:39</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">This is the compression artifact - participants should screenshot or photograph this.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Checklist (0:38-0:39):</p><p>"This is your take-away from Module 2. Screenshot or photograph this checklist."</p><p>Quickly walk through the three phases:</p><ul><li><strong>Pre-work:</strong> Set up for success before collaborating</li><li><strong>During:</strong> Use AI to help with tone and clarity</li><li><strong>Wrap-up:</strong> Clean up and verify</li></ul></div></div>`
+            },
+            {
+                title: "Slide 16: Bridge to Module 3",
+                content: `<div class="w-full flex flex-col items-center justify-center text-center"><h2 class="text-4xl font-bold mb-8 gradient-text">Coming Up Next</h2><div class="max-w-3xl mb-8"><div class="bg-gradient-to-br from-blue-900/30 to-purple-900/30 p-8 rounded-2xl border border-purple-500/30"><p class="text-sm text-purple-400 uppercase tracking-wider mb-4">Module 3 Preview</p><h3 class="text-3xl font-bold mb-4">Document Automation</h3><p class="text-xl text-slate-300 mb-6">Move from collaboration to automation — using AI to create templated documents that save you time on repetitive writing tasks.</p></div></div><div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 max-w-2xl"><p class="text-lg text-slate-300 mb-3">Before next session, try this:</p><p class="text-slate-400">Identify one document you create repeatedly. Notice what parts are always the same vs. what changes.</p></div></div>`,
+                notes: `<div class="slide-cue-box">***[Advance to Slide 16]***</div><div class="timing-box"><i class="fa-regular fa-clock text-purple-400"></i><span class="time-range">0:39 - 0:40</span></div><div class="key-message-box"><div class="key-message-header"><i class="fa-solid fa-bullseye"></i>KEY MESSAGE</div><div class="key-message">End strong - preview what's next and give them one actionable thing to try.</div></div><div class="trainer-notes-section"><div class="notes-header"><i class="fa-solid fa-clipboard"></i>FULL TRAINER SCRIPT</div><div class="trainer-note"><p class="script-heading">Wrap-Up (0:39-0:40):</p><p>"Module 2 complete! Great work co-authoring with AI."</p><p><strong>Next module preview:</strong> Module 3 is about automation - using AI to create templated documents that save you time on repetitive writing tasks like meeting notes, status updates, and project briefs.</p><p><strong>Your homework:</strong> Before our next session, identify one document you create repeatedly. Notice what's always the same (template) vs. what changes (content).</p><p>See you in Module 3!"</p></div></div>`
+            }
+        ];
+
+        let currentSlide = 0;
+        const totalSlides = courseData.length;
+
+        function updateSlide() {
+            const slide = courseData[currentSlide];
+            document.getElementById('slide-info').innerHTML = `<h3 class="text-purple-300 font-bold text-lg mb-4">${slide.title}</h3>`;
+            document.getElementById('notes-content').innerHTML = slide.notes;
+            document.getElementById('slideCounter').textContent = `Slide ${currentSlide + 1} / ${totalSlides}`;
+            document.getElementById('bannerSlide').textContent = currentSlide + 1;
+            document.getElementById('bannerTotal').textContent = totalSlides;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+
+            const previewContent = document.getElementById('preview-content');
+            previewContent.innerHTML = slide.content;
+            previewContent.style.fontSize = '12px';
+            previewContent.style.lineHeight = '1.4';
+
+            const aspectRatio = 16 / 9;
+            const containerWidth = previewContent.parentElement.clientWidth;
+            const containerHeight = previewContent.parentElement.clientHeight;
+
+            let scale = 1;
+            if (containerWidth && containerHeight) {
+                const scaleX = containerWidth / 1600;
+                const scaleY = containerHeight / (1600 / aspectRatio);
+                scale = Math.min(scaleX, scaleY, 1);
+            }
+
+            previewContent.style.transform = `scale(${scale})`;
+            previewContent.style.width = '1600px';
+            previewContent.style.height = `${1600 / aspectRatio}px`;
+            previewContent.style.maxWidth = 'none';
+
+            channel.postMessage({ type: 'sync', index: currentSlide });
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) { currentSlide--; updateSlide(); }
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', nextSlide);
+        document.getElementById('prevBtn').addEventListener('click', prevSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+        });
+
+        const splitSlider = document.getElementById('splitSlider');
+        const splitValue = document.getElementById('splitValue');
+        splitSlider.addEventListener('input', () => {
+            const val = splitSlider.value;
+            splitValue.textContent = val + '%';
+            document.getElementById('previewPane').style.height = val + '%';
+            document.getElementById('notesPane').style.flex = '1';
+        });
+
+        window.addEventListener('resize', updateSlide);
+        updateSlide();
+    </script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Module 5: Meetings & Calendaring (Audience)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow: hidden; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .slide { opacity: 0; transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; pointer-events: none; position: absolute; inset: 0; transform: scale(0.98); overflow-y: auto; overflow-x: hidden; display: flex; }
+        .slide.active { opacity: 1; pointer-events: auto; transform: scale(1); z-index: 10; }
+        .gradient-text { background: linear-gradient(135deg, #a78bfa, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-0 md:p-4 lg:p-8 bg-slate-950">
+    <div class="relative bg-slate-900 md:shadow-2xl md:rounded-2xl md:border border-slate-800 overflow-hidden flex flex-col w-full h-full md:aspect-video max-h-[100dvh] md:max-h-[90vh] max-w-[1600px]">
+        <div class="absolute top-2 left-2 md:top-4 md:left-4 z-20 flex items-center gap-2 bg-slate-800/80 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1 rounded-full border border-slate-700">
+            <span class="text-xs md:text-sm font-semibold text-purple-400">MODULE 5</span>
+        </div>
+        <div class="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex items-center gap-2 bg-slate-800/80 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1 rounded-full border border-slate-700">
+            <span class="text-xs md:text-sm font-mono text-slate-400">Slide</span>
+            <span id="slideCounter" class="text-xs md:text-sm font-bold text-purple-400">1</span>
+            <span class="text-xs md:text-sm font-mono text-slate-500">/</span>
+            <span id="totalSlides" class="text-xs md:text-sm font-mono text-slate-400">17</span>
+        </div>
+        <div class="flex-1 relative w-full h-full p-6 sm:p-8 md:p-16 flex items-center justify-center overflow-hidden" id="slides-wrapper">
+
+            <!-- SLIDE 1: Title -->
+            <div class="slide active" data-index="0">
+                <div class="w-full flex flex-col items-center justify-center text-center">
+                    <div class="mb-6 px-4 py-1 rounded-full bg-blue-500/20 text-blue-400 text-sm font-semibold border border-blue-500/30">MODULE 5</div>
+                    <h1 class="text-5xl md:text-7xl font-extrabold mb-6">Meetings & Calendaring</h1>
+                    <p class="text-2xl md:text-3xl text-slate-400 mb-8">Schedule, Generate, and Capture with AI</p>
+                    <div class="flex items-center gap-4 text-slate-500 text-lg">
+                        <span><i class="fa-regular fa-clock mr-2"></i>30 min</span>
+                        <span class="text-purple-400">|</span>
+                        <span><i class="fa-solid fa-graduation-cap mr-2"></i>Module 5 of 8</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: Learning Objectives -->
+            <div class="slide" data-index="1">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Learning Objectives</h2>
+                    <div class="space-y-5 w-full max-w-4xl">
+                        <div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-bold">1</span></div>
+                            <p class="text-xl font-semibold text-white">Schedule meetings using AI-assisted calendar commands</p>
+                        </div>
+                        <div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-bold">2</span></div>
+                            <p class="text-xl font-semibold text-white">Generate structured meeting agendas using Gemini</p>
+                        </div>
+                        <div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-bold">3</span></div>
+                            <p class="text-xl font-semibold text-white">Draft meeting notes and follow-up communications with AI</p>
+                        </div>
+                        <div class="flex items-start gap-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-bold">4</span></div>
+                            <p class="text-xl font-semibold text-white">Automate recurring meeting preparation workflows</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: Session Overview -->
+            <div class="slide" data-index="2">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Session Overview</h2>
+                    <div class="w-full max-w-4xl">
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="bg-blue-600/20 p-4 rounded-xl border-l-4 border-blue-400 text-center">
+                                <div class="text-3xl font-bold text-blue-400 mb-2">12</div>
+                                <div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div>
+                                <div class="text-lg font-semibold mt-2 text-blue-300">LEARN</div>
+                            </div>
+                            <div class="bg-emerald-600/20 p-4 rounded-xl border-l-4 border-emerald-400 text-center">
+                                <div class="text-3xl font-bold text-emerald-400 mb-2">18</div>
+                                <div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div>
+                                <div class="text-lg font-semibold mt-2 text-emerald-300">CONSOLIDATE</div>
+                            </div>
+                            <div class="bg-purple-600/20 p-4 rounded-xl border-l-4 border-purple-400 text-center">
+                                <div class="text-3xl font-bold text-purple-400 mb-2">2</div>
+                                <div class="text-sm text-slate-400 uppercase tracking-wide">Minutes</div>
+                                <div class="text-lg font-semibold mt-2 text-purple-300">COMPRESS</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <p class="text-blue-400 font-semibold mb-2">LEARN Phase</p>
+                                    <ul class="text-slate-400 space-y-1">
+                                        <li>Meeting inefficiency costs</li>
+                                        <li>AI meeting workflow</li>
+                                        <li>Live demonstration</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="text-emerald-400 font-semibold mb-2">CONSOLIDATE Phase</p>
+                                    <ul class="text-slate-400 space-y-1">
+                                        <li>AI scheduling exercise</li>
+                                        <li>Agenda generation task</li>
+                                        <li>AI notetaking practice</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="text-purple-400 font-semibold mb-2">COMPRESS Phase</p>
+                                    <ul class="text-slate-400 space-y-1">
+                                        <li>Pattern recap</li>
+                                        <li>Meeting automation script</li>
+                                        <li>Bridge to Module 6</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: The Meeting Problem -->
+            <div class="slide" data-index="3">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">The Meeting Problem</h2>
+                    <p class="text-xl text-slate-400 mb-8">Meetings consume significant professional time</p>
+                    <div class="w-full max-w-5xl">
+                        <div class="overflow-hidden rounded-xl border border-slate-700 mb-6">
+                            <table class="w-full">
+                                <thead class="bg-slate-800">
+                                    <tr>
+                                        <th class="text-left p-4 text-blue-400 font-semibold">Metric</th>
+                                        <th class="text-left p-4 text-blue-400 font-semibold">Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-700">
+                                    <tr class="bg-slate-800/30"><td class="p-4 text-slate-300">Average meetings per week</td><td class="p-4 text-emerald-400">8-12 for knowledge workers</td></tr>
+                                    <tr><td class="p-4 text-slate-300">Meeting time as % of workday</td><td class="p-4 text-emerald-400">35-40%</td></tr>
+                                    <tr class="bg-slate-800/30"><td class="p-4 text-slate-300">Employees feeling over-meeted</td><td class="p-4 text-red-400">71%</td></tr>
+                                    <tr><td class="p-4 text-slate-300">Time in productive meetings</td><td class="p-4 text-red-400"><50% of meeting time</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="bg-red-900/20 p-5 rounded-xl border border-red-500/30 text-center">
+                            <p class="text-2xl font-bold text-red-400 mb-2">Most meeting time is wasted on admin</p>
+                            <p class="text-slate-400">Scheduling, agenda creation, note-taking = 60% of meeting prep</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 5: Where AI Can Help -->
+            <div class="slide" data-index="4">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Where AI Can Help</h2>
+                    <div class="w-full max-w-5xl">
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="bg-blue-600/20 p-5 rounded-xl border border-blue-500/30">
+                                <h3 class="font-bold text-lg text-blue-400 mb-4 text-center">BEFORE</h3>
+                                <ul class="text-slate-300 space-y-2 text-sm">
+                                    <li><i class="fa-solid fa-robot text-blue-400 mr-2"></i>Find time slots</li>
+                                    <li><i class="fa-solid fa-robot text-blue-400 mr-2"></i>Generate agenda</li>
+                                    <li><i class="fa-solid fa-robot text-blue-400 mr-2"></i>Send invites</li>
+                                    <li><i class="fa-solid fa-robot text-blue-400 mr-2"></i>Prep materials</li>
+                                </ul>
+                            </div>
+                            <div class="bg-purple-600/20 p-5 rounded-xl border border-purple-500/30">
+                                <h3 class="font-bold text-lg text-purple-400 mb-4 text-center">DURING</h3>
+                                <ul class="text-slate-300 space-y-2 text-sm">
+                                    <li><i class="fa-solid fa-microphone text-purple-400 mr-2"></i>AI notetaking</li>
+                                    <li><i class="fa-solid fa-clipboard text-purple-400 mr-2"></i>Transcription</li>
+                                    <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Action capture</li>
+                                    <li><i class="fa-solid fa-language text-purple-400 mr-2"></i>Translation</li>
+                                </ul>
+                            </div>
+                            <div class="bg-emerald-600/20 p-5 rounded-xl border border-emerald-500/30">
+                                <h3 class="font-bold text-lg text-emerald-400 mb-4 text-center">AFTER</h3>
+                                <ul class="text-slate-300 space-y-2 text-sm">
+                                    <li><i class="fa-solid fa-file text-emerald-400 mr-2"></i>Auto-generate notes</li>
+                                    <li><i class="fa-solid fa-envelope text-emerald-400 mr-2"></i>Distribute summary</li>
+                                    <li><i class="fa-solid fa-list-check text-emerald-400 mr-2"></i>Create follow-up tasks</li>
+                                    <li><i class="fa-solid fa-gavel text-emerald-400 mr-2"></i>Track decisions</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="bg-emerald-900/20 p-4 rounded-xl border border-emerald-500/30 text-center">
+                            <p class="text-emerald-400 font-semibold">Time savings potential: 65-80% on meeting admin tasks</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 6: Time Savings -->
+            <div class="slide" data-index="5">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Time Savings Potential</h2>
+                    <div class="w-full max-w-5xl">
+                        <div class="overflow-hidden rounded-xl border border-slate-700 mb-6">
+                            <table class="w-full">
+                                <thead class="bg-slate-800">
+                                    <tr>
+                                        <th class="text-left p-4 text-blue-400 font-semibold">Task</th>
+                                        <th class="text-left p-4 text-blue-400 font-semibold">Manual Time</th>
+                                        <th class="text-left p-4 text-blue-400 font-semibold">AI-Assisted</th>
+                                        <th class="text-left p-4 text-blue-400 font-semibold">Savings</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-700">
+                                    <tr class="bg-slate-800/30"><td class="p-4 text-slate-300">Scheduling (finding time)</td><td class="p-4 text-red-400">10-15 min</td><td class="p-4 text-emerald-400">2-3 min</td><td class="p-4 text-emerald-400 font-bold">80%</td></tr>
+                                    <tr><td class="p-4 text-slate-300">Agenda creation</td><td class="p-4 text-red-400">10 min</td><td class="p-4 text-emerald-400">2 min</td><td class="p-4 text-emerald-400 font-bold">80%</td></tr>
+                                    <tr class="bg-slate-800/30"><td class="p-4 text-slate-300">Note-taking</td><td class="p-4 text-red-400">20-30 min</td><td class="p-4 text-emerald-400">5 min (review)</td><td class="p-4 text-emerald-400 font-bold">75%</td></tr>
+                                    <tr><td class="p-4 text-slate-300">Follow-up communications</td><td class="p-4 text-red-400">15 min</td><td class="p-4 text-emerald-400">5 min</td><td class="p-4 text-emerald-400 font-bold">65%</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 7: AI Meeting Workflow -->
+            <div class="slide" data-index="6">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">AI Meeting Workflow</h2>
+                    <div class="w-full max-w-5xl">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-gradient-to-br from-blue-600/20 to-slate-800/50 p-6 rounded-xl border border-blue-500/30">
+                                <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-4"><i class="fa-solid fa-calendar text-blue-400 text-xl"></i></div>
+                                <h3 class="font-bold text-xl text-blue-400 mb-2">PHASE 1: PRE</h3>
+                                <ul class="text-slate-300 space-y-2 text-sm">
+                                    <li>Find time: Calendar Gemini</li>
+                                    <li>Generate agenda: Gemini Docs</li>
+                                    <li>Prep materials: Gemini + Drive</li>
+                                </ul>
+                            </div>
+                            <div class="bg-gradient-to-br from-purple-600/20 to-slate-800/50 p-6 rounded-xl border border-purple-500/30">
+                                <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-4"><i class="fa-solid fa-video text-purple-400 text-xl"></i></div>
+                                <h3 class="font-bold text-xl text-purple-400 mb-2">PHASE 2: DURING</h3>
+                                <ul class="text-slate-300 space-y-2 text-sm">
+                                    <li>AI notetaking: Meet notes</li>
+                                    <li>Transcription: Meet transcripts</li>
+                                    <li>Action capture: Manual + AI</li>
+                                </ul>
+                            </div>
+                            <div class="bg-gradient-to-br from-emerald-600/20 to-slate-800/50 p-6 rounded-xl border border-emerald-500/30">
+                                <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4"><i class="fa-solid fa-clipboard-check text-emerald-400 text-xl"></i></div>
+                                <h3 class="font-bold text-xl text-emerald-400 mb-2">PHASE 3: POST</h3>
+                                <ul class="text-slate-300 space-y-2 text-sm">
+                                    <li>Generate summary: Gemini</li>
+                                    <li>Draft follow-up: Gemini Gmail</li>
+                                    <li>Create tasks: Gemini + Tasks</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 8: Live Demonstration -->
+            <div class="slide" data-index="7">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Live Demonstration</h2>
+                    <p class="text-xl text-slate-400 mb-10">Watch the trainer perform these actions</p>
+                    <div class="w-full max-w-5xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-3"><div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold text-sm">1</span></div><h3 class="font-bold text-lg">Schedule Using AI</h3></div>
+                                <p class="text-sm text-slate-400">Open Calendar - Use Gemini panel to find meeting time</p>
+                            </div>
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-3"><div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold text-sm">2</span></div><h3 class="font-bold text-lg">Generate Agenda</h3></div>
+                                <p class="text-sm text-slate-400">Use Gemini to create professional agenda structure</p>
+                            </div>
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-3"><div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold text-sm">3</span></div><h3 class="font-bold text-lg">Meeting Notes Feature</h3></div>
+                                <p class="text-sm text-slate-400">Demonstrate Meet AI notes interface</p>
+                            </div>
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                                <div class="flex items-center gap-3 mb-3"><div class="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center"><span class="text-yellow-400 font-bold text-sm">4</span></div><h3 class="font-bold text-lg">Draft Follow-up Email</h3></div>
+                                <p class="text-sm text-slate-400">Use Gemini in Gmail to draft team summary</p>
+                            </div>
+                            <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 md:col-span-2">
+                                <div class="flex items-center gap-3 mb-3"><div class="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center"><span class="text-red-400 font-bold text-sm">5</span></div><h3 class="font-bold text-lg">Extract Action Items</h3></div>
+                                <p class="text-sm text-slate-400">Prompt Gemini to list action items with owners and dates</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 9: Workshop - Task 1 -->
+            <div class="slide" data-index="8">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div>
+                    <h2 class="text-4xl font-bold mb-4">Task 1: AI-Assisted Scheduling</h2>
+                    <p class="text-xl text-slate-400 mb-6">Time: 3 minutes</p>
+                    <div class="w-full max-w-3xl">
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-emerald-500/30">
+                            <ol class="space-y-4">
+                                <li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">1</span></div><p class="text-lg text-slate-200">Open Google Calendar</p></li>
+                                <li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">2</span></div><p class="text-lg text-slate-200">Click "Create" or use Gemini panel</p></li>
+                                <li class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">3</span></div><p class="text-lg text-slate-200">Try: "Find 30 min for a 1:1 with your manager next week"</p></li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 10: Workshop - Task 2 -->
+            <div class="slide" data-index="9">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div>
+                    <h2 class="text-4xl font-bold mb-4">Task 2: Generate Meeting Agenda</h2>
+                    <p class="text-xl text-slate-400 mb-6">Time: 4 minutes</p>
+                    <div class="w-full max-w-4xl">
+                        <div class="bg-slate-800/50 p-5 rounded-xl border border-emerald-500/30 mb-4">
+                            <p class="text-slate-300 mb-3">Create new Google Doc and use Gemini with:</p>
+                            <div class="bg-slate-900 p-4 rounded-lg text-sm">
+                                <p class="text-purple-400 font-semibold mb-2">Create a professional meeting agenda for a 30-minute meeting.</p>
+                                <p class="text-slate-300 mb-1">Meeting Type: Weekly Team Sync</p>
+                                <p class="text-slate-300 mb-1">Attendees: 6 team members</p>
+                                <p class="text-slate-300 mb-1">Purpose: Share updates, identify blockers, coordinate on Q3 goals</p>
+                            </div>
+                        </div>
+                        <p class="text-center text-slate-500 text-sm">Review and personalize the agenda, then save to Drive</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 11: Workshop - Task 3 -->
+            <div class="slide" data-index="10">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <div class="mb-4 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold border border-emerald-500/30">WORKSHOP</div>
+                    <h2 class="text-4xl font-bold mb-4">Task 3: Schedule the Meeting</h2>
+                    <p class="text-xl text-slate-400 mb-6">Time: 3 minutes</p>
+                    <div class="w-full max-w-3xl">
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-emerald-500/30">
+                            <div class="space-y-4">
+                                <div class="flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">1</span></div><p class="text-lg text-slate-200">Create calendar event with AI-generated agenda</p></div>
+                                <div class="flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">2</span></div><p class="text-lg text-slate-200">Copy agenda into event description</p></div>
+                                <div class="flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">3</span></div><p class="text-lg text-slate-200">Set reminder, add location/video link, send invite</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 12: AI Notetaking Exercise -->
+            <div class="slide" data-index="11">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <div class="mb-4 px-4 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-semibold border border-purple-500/30">AI NOTETAKING EXERCISE</div>
+                    <h2 class="text-4xl font-bold mb-8">Extract Meeting Information</h2>
+                    <div class="w-full max-w-4xl">
+                        <div class="bg-slate-800/50 p-5 rounded-xl border border-purple-500/30 mb-4">
+                            <p class="text-slate-300 mb-3">Use this simulated meeting to practice AI extraction:</p>
+                            <div class="bg-slate-900 p-4 rounded-lg text-sm max-h-48 overflow-y-auto">
+                                <p class="text-slate-400 mb-2">Project Status Update - May 27, 2026</p>
+                                <p class="text-slate-400 mb-2">Attendees: Alex (PM), Jordan (Design), Taylor (Engineering)</p>
+                                <p class="text-slate-400 mb-2">Q2 launch on track - 92% of sprint goals met.</p>
+                                <p class="text-slate-400 mb-2">Design review for dashboard complete. Ready for dev handoff.</p>
+                                <p class="text-slate-400 mb-2">Engineering can start Monday. Need final API specs.</p>
+                                <p class="text-emerald-400 mb-2">DECISIONS: Launch date June 15. Dashboard in Phase 2 (July).</p>
+                                <p class="text-yellow-400">ACTIONS: Jordan - send specs to Taylor by EOD Friday. Taylor - schedule backend sync. Alex - update stakeholder presentation.</p>
+                            </div>
+                        </div>
+                        <div class="bg-purple-900/20 p-4 rounded-xl border border-purple-500/30">
+                            <p class="text-purple-400 font-semibold mb-2">Gemini Prompt:</p>
+                            <p class="text-slate-300 text-sm">"Extract: decisions made, action items with owners, 3-bullet summary for those who missed"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 13: Pattern Recap -->
+            <div class="slide" data-index="12">
+                <div class="w-full flex flex-col items-center justify-center text-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Pattern Recap</h2>
+                    <div class="max-w-3xl">
+                        <div class="bg-gradient-to-br from-blue-900/30 to-slate-900/50 p-8 rounded-2xl border border-blue-500/30 mb-8">
+                            <p class="text-2xl md:text-3xl font-medium text-white leading-relaxed">"AI doesn't replace meeting productivity — it removes the <span class="text-blue-400 font-bold">administrative overhead</span>. Use it to capture, not to think."</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                            <h3 class="font-bold text-lg mb-4 text-blue-400">Meeting AI Decision Guide:</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                                <div>
+                                    <p class="text-emerald-400 font-semibold mb-2">USE AI FOR:</p>
+                                    <ul class="text-slate-300 space-y-1">
+                                        <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Scheduling coordination</li>
+                                        <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Agenda templating</li>
+                                        <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Note capture</li>
+                                        <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Follow-up drafting</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="text-red-400 font-semibold mb-2">USE HUMAN FOR:</p>
+                                    <ul class="text-slate-300 space-y-1">
+                                        <li><i class="fa-solid fa-xmark text-red-400 mr-2"></i>Meeting necessity</li>
+                                        <li><i class="fa-solid fa-xmark text-red-400 mr-2"></i>Discussion facilitation</li>
+                                        <li><i class="fa-solid fa-xmark text-red-400 mr-2"></i>Sensitive feedback</li>
+                                        <li><i class="fa-solid fa-xmark text-red-400 mr-2"></i>Strategic decisions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 14: Take-Away - Meeting Automation Script -->
+            <div class="slide" data-index="13">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <h2 class="text-4xl font-bold mb-6 gradient-text">Take-Away: Meeting Automation Script</h2>
+                    <div class="w-full max-w-3xl">
+                        <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+                            <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-center"><h3 class="text-xl font-bold">MEETING AUTOMATION SCRIPT</h3></div>
+                            <div class="p-6 space-y-3 text-sm">
+                                <div class="flex items-start gap-3"><div class="w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-bold">1</span></div><p class="text-slate-300"><span class="text-blue-400">SCHEDULE:</span> "Find 30 min for [meeting] with [attendees]"</p></div>
+                                <div class="flex items-start gap-3"><div class="w-6 h-6 rounded bg-purple-500/20 flex items-center justify-center flex-shrink-0"><span class="text-purple-400 font-bold">2</span></div><p class="text-slate-300"><span class="text-purple-400">AGENDA:</span> Gemini → "Create agenda for [meeting type]" → Copy to calendar</p></div>
+                                <div class="flex items-start gap-3"><div class="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><span class="text-emerald-400 font-bold">3</span></div><p class="text-slate-300"><span class="text-emerald-400">PREP:</span> "Summarize relevant docs in Drive for [meeting]"</p></div>
+                                <div class="flex items-start gap-3"><div class="w-6 h-6 rounded bg-yellow-500/20 flex items-center justify-center flex-shrink-0"><span class="text-yellow-400 font-bold">4</span></div><p class="text-slate-300"><span class="text-yellow-400">DURING:</span> Let Meet AI capture notes (if enabled)</p></div>
+                                <div class="flex items-start gap-3"><div class="w-6 h-6 rounded bg-red-500/20 flex items-center justify-center flex-shrink-0"><span class="text-red-400 font-bold">5</span></div><p class="text-slate-300"><span class="text-red-400">POST:</span> Gemini extract → "Draft team update email"</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 15: Bridge to Module 6 -->
+            <div class="slide" data-index="14">
+                <div class="w-full flex flex-col items-center justify-center text-center">
+                    <h2 class="text-4xl font-bold mb-8 gradient-text">Coming Up Next</h2>
+                    <div class="max-w-3xl mb-8">
+                        <div class="bg-gradient-to-br from-blue-900/30 to-emerald-900/30 p-8 rounded-2xl border border-emerald-500/30">
+                            <p class="text-sm text-emerald-400 uppercase tracking-wider mb-4">Module 6 Preview</p>
+                            <h3 class="text-3xl font-bold mb-4">Drive & File Management</h3>
+                            <p class="text-xl text-slate-300 mb-6">Organize thousands of files, find information instantly, and create systematic folder structures using AI.</p>
+                            <div class="flex items-center justify-center gap-4 text-slate-400">
+                                <span><i class="fa-regular fa-clock mr-2"></i>30 minutes</span>
+                                <span class="text-purple-400">|</span>
+                                <span><i class="fa-solid fa-graduation-cap mr-2"></i>Module 6 of 8</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 max-w-2xl">
+                        <p class="text-lg text-slate-300 mb-3">Before next session, try this:</p>
+                        <p class="text-slate-400">Schedule one meeting this week using AI assistance. Notice how much time you save.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        const channel = new BroadcastChannel('sync_module_5_ai-productivity');
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const slideCounter = document.getElementById('slideCounter');
+        const totalSlidesEl = document.getElementById('totalSlides');
+        totalSlidesEl.textContent = totalSlides;
+        function showSlide(index) { slides.forEach((slide, i) => { slide.classList.toggle('active', i === index); }); slideCounter.textContent = index + 1; currentSlide = index; }
+        channel.onmessage = (e) => { if (e.data.type === 'sync') showSlide(e.data.index); else if (e.data.type === 'open-tab-url') window.open(e.data.url, '_blank'); };
+        document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === ' ') { if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1); } else if (e.key === 'ArrowLeft') { if (currentSlide > 0) showSlide(currentSlide - 1); } });
+        showSlide(0);
+    </script>
+</body>
+</html>

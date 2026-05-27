@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MODULE_TITLE (Audience)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ============================================
+           CANONICAL AUDIENCE HTML BOILERPLATE
+           Source: plan/templates/audience_boilerplate.html
+           Version: 1.0
+           ============================================ */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow: hidden; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .slide { opacity: 0; transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; pointer-events: none; position: absolute; inset: 0; transform: scale(0.98); overflow-y: auto; overflow-x: hidden; display: flex; }
+        .slide.active { opacity: 1; pointer-events: auto; transform: scale(1); z-index: 10; }
+        .gradient-text { background: linear-gradient(135deg, #a78bfa, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-0 md:p-4 lg:p-8 bg-slate-950">
+    <div class="relative bg-slate-900 md:shadow-2xl md:rounded-2xl md:border border-slate-800 overflow-hidden flex flex-col w-full h-full md:aspect-video max-h-[100dvh] md:max-h-[90vh] max-w-[1600px]">
+        <div class="absolute top-2 left-2 md:top-4 md:left-4 z-20 flex items-center gap-2 bg-slate-800/80 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1 rounded-full border border-slate-700">
+            <span class="text-xs md:text-sm font-semibold text-purple-400">MODULE_TITLE</span>
+        </div>
+        <div class="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex items-center gap-2 bg-slate-800/80 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1 rounded-full border border-slate-700">
+            <span class="text-xs md:text-sm font-mono text-slate-400">Slide</span>
+            <span id="slideCounter" class="text-xs md:text-sm font-bold text-purple-400">1</span>
+            <span class="text-xs md:text-sm font-mono text-slate-500">/</span>
+            <span id="totalSlides" class="text-xs md:text-sm font-mono text-slate-400">SLIDE_COUNT</span>
+        </div>
+        <div class="flex-1 relative w-full h-full p-6 sm:p-8 md:p-16 flex items-center justify-center overflow-hidden" id="slides-wrapper">
+            <!-- SLIDES INSERTED HERE BY JS -->
+        </div>
+    </div>
+    <script>
+        /* ============================================
+           CANONICAL BROADCASTCHANNEL SYNC
+           Channel: sync_module_{N}_{suffix}
+           ============================================ */
+        const channel = new BroadcastChannel('sync_module_N_SUFFIX');
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const slideCounter = document.getElementById('slideCounter');
+        const totalSlidesEl = document.getElementById('totalSlides');
+
+        totalSlidesEl.textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            slideCounter.textContent = index + 1;
+            currentSlide = index;
+        }
+
+        channel.onmessage = (e) => {
+            if (e.data.type === 'sync') {
+                showSlide(e.data.index);
+            } else if (e.data.type === 'open-tab-url') {
+                window.open(e.data.url, '_blank');
+            } else if (e.data.type === 'remoteTakeover') {
+                window.location.href = e.data.url;
+            }
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 0) showSlide(currentSlide - 1);
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
